@@ -1,0 +1,60 @@
+networks:
+  msg-crafter-network:
+    driver: bridge
+    ipam:
+      driver: default
+
+services:
+  msg-crafter-nginx:
+    container_name: msg-crafter-nginx
+    image: nginx
+    ports:
+      - '${FORWARD_NGINX_PORT:-8080}:80'
+    depends_on:
+      - msg-crafter
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - msg-crafter-network
+
+  msg-crafter:
+    container_name: msg-crafter
+    build:
+      context: docker
+      dockerfile: app.Dockerfile
+    image: msg-crafter
+    volumes:
+      - ./:/var/www
+    networks:
+      - msg-crafter-network
+
+  msg-crafter-db:
+    container_name: msg-crafter-db
+    image: postgres:17
+    environment:
+      POSTGRES_USER: msg-crafter
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: msg-crafter
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
+    volumes:
+      - msg-crafter-db-volume:/var/lib/postgresql/data
+    networks:
+      - msg-crafter-network
+
+  msg-crafter-nodejs:
+    container_name: msg-crafter-nodejs
+    build:
+      context: docker
+      dockerfile: nodejs.Dockerfile
+    image: msg-crafter/nodejs
+    ports:
+      - '${FORWARD_VITE_PORT:-5173}:${FORWARD_VITE_PORT:-5173}'
+    volumes:
+      - ./:/var/www
+    networks:
+      - msg-crafter-network
+
+volumes:
+  msg-crafter-db-volume:
