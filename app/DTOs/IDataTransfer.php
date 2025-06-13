@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Domain\Shared\Contracts;
+namespace App\DTOs;
 
 interface IDataTransfer
 {

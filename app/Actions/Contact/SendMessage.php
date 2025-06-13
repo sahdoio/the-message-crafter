@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\UseCases\Contact;
+namespace App\Actions\Contact;
 
 use App\Facades\Messenger;
 use App\Facades\Repository;

@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Auth;
 use App\DTOs\UserApiLoginInputDTO;
 use App\Http\Controllers\Controller;
 use App\Presenters\AuthenticationPresenter;
-use App\UseCases\User\UserApiLogin;
+use App\Actions\User\UserApiLogin;
 use Illuminate\Http\Request;
 
 class AuthenticationAPIController extends Controller

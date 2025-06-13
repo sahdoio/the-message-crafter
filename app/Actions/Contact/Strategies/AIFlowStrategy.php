@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\UseCases\Contact\Strategies;
+namespace App\Actions\Contact\Strategies;
 
 use App\DTOs\MessageFlowInputDTO;
 use Domain\Contact\Contracts\IMessageFlow;

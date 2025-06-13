@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\UseCases\User;
+namespace App\Actions\User;
 
 use App\DTOs\UserApiLoginInputDTO;
 use App\DTOs\UserApiLoginOutputDTO;

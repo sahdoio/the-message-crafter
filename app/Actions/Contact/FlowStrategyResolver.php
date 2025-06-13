@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\UseCases\Contact;
+namespace App\Actions\Contact;
 
 use App\Facades\Repository;
 use App\Models\Message;
-use App\UseCases\Contact\Strategies\AIFlowStrategy;
-use App\UseCases\Contact\Strategies\DefaultFlowStrategy;
+use App\Actions\Contact\Strategies\AIFlowStrategy;
+use App\Actions\Contact\Strategies\DefaultFlowStrategy;
 use Domain\Contact\Contracts\IMessageFlow;
 
 readonly class FlowStrategyResolver
