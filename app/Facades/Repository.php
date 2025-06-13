@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Facades;
 
-use App\Domain\Shared\DTOs\PaginationDTO;
-use App\BaseRepositories\IRepository;
+use App\DTOs\PaginationDTO;
+use App\Repositories\IRepository;
 use ArrayObject;
 use Illuminate\Support\Facades\Facade;
 

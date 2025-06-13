@@ -2,8 +2,8 @@
 
 namespace App\Services\Messenger\Contracts;
 
-use App\Domain\Contact\DTOs\SendMessageInputDTO;
-use App\Domain\Contact\VOs\MessageBody;
+use App\DTOs\SendMessageInputDTO;
+use Domain\Contact\ValueObjects\MessageBody;
 
 interface IMessenger
 {

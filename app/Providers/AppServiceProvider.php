@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\BaseRepositories\IRepository;
-use App\Domain\User\Repositories\IUserRepository;
-use App\BaseRepositories\Eloquent\EloRepository;
-use App\Domain\User\Repositories\Eloquent\UserEloRepository;
+use App\Repositories\Eloquent\EloRepository;
+use App\Repositories\Eloquent\UserEloRepository;
+use App\Repositories\IRepository;
 use App\Services\Messenger\Contracts\IMessenger;
 use App\Services\Messenger\Whatsapp\Messenger;
+use Domain\User\Repositories\IUserRepository;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 

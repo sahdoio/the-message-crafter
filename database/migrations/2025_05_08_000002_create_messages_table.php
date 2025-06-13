@@ -1,8 +1,8 @@
 <?php
 
-use App\Domain\Contact\Enums\MessageChannel;
-use App\Domain\Contact\Enums\MessageStatus;
-use App\Domain\Contact\Enums\MessageType;
+use Domain\Contact\Enums\MessageChannel;
+use Domain\Contact\Enums\MessageStatus;
+use Domain\Contact\Enums\MessageType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

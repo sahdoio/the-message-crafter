@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Facades;
 
-use App\Domain\Contact\DTOs\SendMessageInputDTO;
-use App\Domain\Contact\VOs\MessageBody;
+use App\DTOs\SendMessageInputDTO;
 use App\Services\Messenger\Contracts\IMessenger;
+use Domain\Contact\ValueObjects\MessageBody;
 use Illuminate\Support\Facades\Facade;
 
 /**

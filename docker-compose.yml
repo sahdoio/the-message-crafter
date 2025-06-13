@@ -23,9 +23,14 @@ services:
     build:
       context: docker
       dockerfile: app.Dockerfile
+    entrypoint: [ "/bin/sh", "/scripts/entrypoint.sh" ]
+    command: php-fpm
     image: msg-crafter
     volumes:
       - ./:/var/www
+      - ./docker/scripts:/scripts:ro
+      - ./docker/php/phpfpm.conf:/usr/local/etc/php-fpm.d/www.conf
+      - ./docker/php/local.ini:/usr/local/etc/php/php.ini
     networks:
       - msg-crafter-network
 

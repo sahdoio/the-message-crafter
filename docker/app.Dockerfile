@@ -1,59 +1,70 @@
-FROM php:8.3.1-fpm-alpine
+FROM php:8.4-fpm
+
+USER root
 
 WORKDIR /var/www
 
-RUN apk add --no-cache \
-    bash \
-    git \
-    curl \
-    unzip \
-    zip \
-    tzdata \
-    libzip-dev \
-    libpng-dev \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    libxml2-dev \
-    icu-dev \
-    mariadb-client \
-    postgresql-dev \
-    redis \
-    linux-headers \
-    autoconf \
-    g++ \
-    make
+ARG WWWUSER=1000
+ARG WWWGROUP=1000
 
+# install system dependencies
+RUN apt-get update && apt-get install -y \
+  bash \
+  git \
+  curl \
+  unzip \
+  zip \
+  tzdata \
+  libzip-dev \
+  libpng-dev \
+  libjpeg-dev \
+  libfreetype6-dev \
+  libxml2-dev \
+  libicu-dev \
+  redis-tools \
+  build-essential \
+  autoconf \
+  make \
+  g++ \
+  default-mysql-client \
+  iputils-ping \
+  libpq-dev \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# install gosu to drop privileges safely
+RUN apt-get update && apt-get install -y gosu && rm -rf /var/lib/apt/lists/*
+
+# install php extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
+  && docker-php-ext-install \
     pdo_mysql \
     pdo_pgsql \
-    pgsql \
     gd \
     zip \
     bcmath \
     opcache \
     sockets \
-    pcntl
+    pcntl \
+    exif \
+    intl
 
+# install redis extension
 RUN pecl install redis \
-    && docker-php-ext-enable redis
+  && docker-php-ext-enable redis
 
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug \
-    && echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.client_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "xdebug.log_level=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+# install xdebug and configure
+RUN pecl channel-update pecl.php.net \
+  && pecl install xdebug \
+  && docker-php-ext-enable xdebug \
+  && echo "xdebug.mode=coverage" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+  && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+  && echo "xdebug.client_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+  && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+  && echo "xdebug.log_level=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+# install composer globally
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-ENV LC_ALL pt_BR.UTF-8
-ENV LANG pt_BR.UTF-8
-ENV LANGUAGE pt_BR.UTF-8
-
-COPY php/local.ini /usr/local/etc/php/php.ini
-
+# copy source
 ADD . /var/www
-
-RUN chown -R www-data:www-data /var/www

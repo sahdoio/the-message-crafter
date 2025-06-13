@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Domain\Contact\Entities\Contact;
-use App\Domain\User\Entities\User;
+use App\Models\Contact;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ContactSeeder extends Seeder

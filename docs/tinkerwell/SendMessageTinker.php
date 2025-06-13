@@ -1,5 +1,6 @@
 <?php
-use App\Domain\Contact\UseCases\SendMessage;
+
+use App\UseCases\Contact\SendMessage;
 
 $useCase = app(SendMessage::class);
 $useCase->handle("test");

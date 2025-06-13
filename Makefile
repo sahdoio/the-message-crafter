@@ -34,7 +34,7 @@ down:
 	$(DC) down
 
 sh:
-	$(DC) exec msg-crafter sh
+	$(DC) exec msg-crafter bash
 
 node-sh:
 	$(DC) exec msg-crafter-nodejs sh

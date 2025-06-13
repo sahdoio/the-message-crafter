@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Auth;
 
-use App\Domain\User\DTOs\UserApiLoginInputDTO;
-use App\Domain\User\Presenters\AuthenticationPresenter;
-use App\Domain\User\UseCases\UserApiLogin;
+use App\DTOs\UserApiLoginInputDTO;
 use App\Http\Controllers\Controller;
+use App\Presenters\AuthenticationPresenter;
+use App\UseCases\User\UserApiLogin;
 use Illuminate\Http\Request;
 
 class AuthenticationAPIController extends Controller
