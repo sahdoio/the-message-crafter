@@ -11,11 +11,18 @@ use ArrayObject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Laminas\Hydrator\ReflectionHydrator;
+use ReflectionClass;
+use ReflectionException;
 
 class EloRepository implements IRepository
 {
     protected string $modelClass = '';
     protected Model $modelObject;
+
+    protected mixed $entity;
+    protected string $entityClass;
+    protected ReflectionHydrator $hydrator;
 
     /**
      * Here we work with the same instance
@@ -28,18 +35,32 @@ class EloRepository implements IRepository
         }
     }
 
-    /**
-     * Here we work with a new instance
-     *
-     * @param string $className
-     * @return $this
-     */
-    public function for(string $className): static
-    {
+    public function for(string $className): static {
         $new = clone $this;
-        $schema = str_contains($className, '\\') ? $className : "App\\Models\\{$className}";
+        $this->entityClass = $className;
+        $entitySchema = ($className)::SCHEMA;
+        $schema = "App\\Models\\{$entitySchema}";
         $new->modelObject = app($schema);
+        $new->hydrator = new ReflectionHydrator();
         return $new;
+    }
+
+     /**
+     * Creates an entity instance from a database record
+     * @throws ReflectionException
+     */
+    protected function createEntity(array $data): object
+    {
+        $entityClass = $this->entityClass;
+
+        $reflection = new ReflectionClass($entityClass);
+
+        // Bypass the constructor method, so we can use setters,
+        // otherwise we get type errors without having the chance to hydrate the entity
+        $entity = $reflection->newInstanceWithoutConstructor();
+
+        // Hydrate the entity using Laminas Hydrator
+        return $this->hydrator->hydrate($data, $entity);
     }
 
     public function getQueryBuilder(): Builder
@@ -63,10 +84,13 @@ class EloRepository implements IRepository
             $page
         );
 
+        $entities = array_map(
+            fn($item): object => $this->createEntity($item),
+            $paginated->items()
+        );
+
         return new PaginationDTO(
-            collect($paginated->items())
-                ->map(fn($item) => new ArrayObject($item->toArray(), ArrayObject::ARRAY_AS_PROPS))
-                ->all(),
+            $entities,
             $paginated->total(),
             $paginated->currentPage(),
             $paginated->perPage(),
@@ -121,9 +145,9 @@ class EloRepository implements IRepository
     {
         $query = $this->getQueryFromFilter($filter, $filterOptions);
 
-        $model = $query->first();
+        $result = $query->first();
 
-        return $model ? new ArrayObject($model->toArray(), ArrayObject::ARRAY_AS_PROPS) : null;
+        return $result ? $this->createEntity($result->toArray()) : null;
     }
 
     public function findById(int $id): ?ArrayObject
@@ -148,8 +172,7 @@ class EloRepository implements IRepository
     public function create(array $data): ArrayObject
     {
         $model = $this->modelObject->create($data);
-
-        return new ArrayObject($model->toArray(), ArrayObject::ARRAY_AS_PROPS);
+        return $this->createEntity($model->toArray());
     }
 
     public function update(int $id, array $data): ArrayObject

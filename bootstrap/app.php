@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use Domain\Shared\Exceptions\ResourceNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,5 +25,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->report(function (ResourceNotFoundException $e) {
+            Log::warning('Resource not found', ['message' => $e->getMessage(), 'trace' => $e->getTrace()]);
+        });
+
+        $exceptions->report(function (Exception $e) {
+            Log::error('Internal server error', ['message' => $e->getMessage(), 'trace' => $e->getTrace()]);
+        });
+
+        // Ignore specific exception types
+        $exceptions->dontReport([]);
     })->create();

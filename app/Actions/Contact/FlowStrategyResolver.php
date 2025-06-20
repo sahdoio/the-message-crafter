@@ -14,12 +14,10 @@ readonly class FlowStrategyResolver
 {
     public function __construct() {}
 
-    public function resolve(int $messageId): IMessageFlow
+    public function resolve(Object $message): IMessageFlow
     {
-        $message = Repository::setEntity(Message::class)->findOne(['id' => $messageId]);
-
         // TODO - use enum
-        if ($message->provider === 'ai') {
+        if ($message->provider === 'credit_card') {
             return new AIFlowStrategy();
         }
 

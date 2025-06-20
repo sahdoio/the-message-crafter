@@ -66,7 +66,7 @@ class ProcessMessageCallback
                 'button_id' => $whatsappButtonId,
             ]);
 
-            $flowStrategy = $this->flowStrategyResolver->resolve($message->id);
+            $flowStrategy = $this->flowStrategyResolver->resolve($message);
             $flowStrategy->handle(new MessageFlowInputDTO(
                 contactPhone: $recipientId,
                 buttonId: $whatsappButtonId,
