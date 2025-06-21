@@ -34,26 +34,20 @@ class SendMessage
             throw new ResourceNotFoundException('Contact not found');
         }
 
-        $message = $contact->sendMessage([
-            'to'     => $to,
-            'status' => MessageStatus::PENDING->value,
-        ]);
+        $message = $contact->startConversation();
 
-        $persistedMessage = $this->messageRepository->create([
+        $message = $this->messageRepository->create([
             'contact_id' => $message->contactId,
-            'status'     => $message->status,
-            'payload'    => $message->payload,
+            'status'     => $message->status
         ]);
 
-        $message->id = $persistedMessage->id;
+        $whatsappPayload = $this->templateBuilder->build($message);
 
-        $whatsappPayload = $this->templateBuilder->build($persistedMessage);
-
-        $this->messageRepository->update($persistedMessage->id, [
+        $message = $this->messageRepository->update($message->id, [
             'payload' => $whatsappPayload->values(),
         ]);
 
-        DomainEventDispatcher::dispatchFrom($contact, $persistedMessage);
+        DomainEventDispatcher::dispatchFrom($contact, $message);
 
         return true;
     }

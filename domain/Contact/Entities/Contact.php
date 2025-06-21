@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Contact\Entities;
 
 use Domain\Contact\Enums\MessageStatus;
-use Domain\Contact\Events\MessageSent;
+use Domain\Contact\Events\ConversationStarted;
 use Domain\Shared\Support\HasDomainEvents;
 
 class Contact
@@ -19,7 +19,7 @@ class Contact
         public string $phone,
     ) {}
 
-    public function sendMessage(array $content): Message
+    public function startConversation(): Message
     {
         $message = new Message(
             contactId: $this->id,
@@ -27,10 +27,9 @@ class Contact
         );
 
         $this->domainEvents[] = fn(Message $persistedMessage) => (
-            new MessageSent(
+            new ConversationStarted(
                 messageId: $persistedMessage->id,
                 contactId: $this->id,
-                content: $content
             )
         );
 

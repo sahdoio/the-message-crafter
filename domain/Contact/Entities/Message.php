@@ -9,6 +9,7 @@ use Domain\Contact\Enums\MessageChannel;
 use Domain\Contact\Enums\MessageProvider;
 use Domain\Contact\Enums\MessageStatus;
 use Domain\Contact\Enums\MessageType;
+use Domain\Contact\ValueObjects\MessageBody;
 
 class Message
 {
@@ -20,7 +21,7 @@ class Message
         public ?string $messageType = MessageType::TEXT->value,
         public ?string $imageUrl = null,
         public ?string $messageId = null,
-        public ?array $payload = null,
+        public ?MessageBody $body = null,
         public ?string $relatedType = null,
         public ?int $relatedId = null,
         public ?string $status = MessageStatus::PENDING->value,

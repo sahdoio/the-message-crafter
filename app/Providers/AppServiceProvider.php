@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Events\MessageSentEvent;
+use App\Events\ConversationStartedEvent;
 use App\Repositories\Eloquent\BaseRepository;
 use App\Repositories\Eloquent\ContactRepository;
 use App\Repositories\Eloquent\MessageRepository;
@@ -10,7 +10,7 @@ use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\IRepository;
 use App\Services\Messenger\Contracts\IMessenger;
 use App\Services\Messenger\Whatsapp\Messenger;
-use Domain\Contact\Events\MessageSent;
+use Domain\Contact\Events\ConversationStarted;
 use Domain\Contact\Repositories\IContactRepository;
 use Domain\Contact\Repositories\IMessageRepository;
 use Domain\User\Repositories\IUserRepository;
@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton('domainEvent.map', function () {
             return [
-                MessageSent::class => MessageSentEvent::class,
+                ConversationStarted::class => ConversationStartedEvent::class,
             ];
         });
     }
