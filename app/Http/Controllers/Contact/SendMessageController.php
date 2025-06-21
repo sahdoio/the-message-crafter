@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Contact;
 
-use App\Http\Controllers\Controller;
 use App\Actions\Contact\SendMessage;
-use Domain\Shared\Exceptions\ResourceNotFoundException;
+use App\Exceptions\ResourceNotFoundException;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

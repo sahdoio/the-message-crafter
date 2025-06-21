@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Facade;
 /**
  * @method static \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder getQueryBuilder()
  * @method static mixed getEntity()
- * @method static static for(string $className)
+ * @method static static for (string $entityClass)
  * @method static PaginationDTO findAll(?array $filter = null, ?int $take = 15, int $page = 1)
  * @method static ArrayObject|null findOne(array $filter = [])
  * @method static ArrayObject|null findById(int $id)

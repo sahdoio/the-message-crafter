@@ -7,7 +7,7 @@ namespace App\Repositories\Eloquent;
 use App\Models\User;
 use Domain\User\Repositories\IUserRepository;
 
-class UserEloRepository extends EloRepository implements IUserRepository
+class UserRepository extends BaseRepository implements IUserRepository
 {
     protected string $modelClass = User::class;
 

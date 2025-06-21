@@ -4,49 +4,57 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact;
 
+use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Messenger;
-use App\Facades\Repository;
-use App\Models\Contact;
-use App\Models\Message;
 use App\Support\WhatsappTemplateBuilder;
 use Domain\Contact\Enums\MessageStatus;
-use Domain\Shared\Exceptions\ResourceNotFoundException;
+use Domain\Contact\Repositories\IContactRepository;
+use Domain\Contact\Repositories\IMessageRepository;
+use Domain\Shared\Support\DomainEventDispatcher;
 
 class SendMessage
 {
     private WhatsappTemplateBuilder $templateBuilder;
 
-    public function __construct()
-    {
+    public function __construct(
+        protected IContactRepository $contactRepository,
+        protected IMessageRepository $messageRepository,
+    ) {
         $templateName = config('whatsapp.template_name');
         $this->templateBuilder = new WhatsappTemplateBuilder($templateName);
     }
 
     /**
-     * Send a WhatsApp message and persist it.
-     *
      * @throws ResourceNotFoundException
      */
     public function handle(string $to): bool
     {
-        $contact = Repository::for(Contact::class)->findOne(['phone' => $to]);
+        $contact = $this->contactRepository->findOne(['phone' => $to]);
 
         if (!$contact) {
             throw new ResourceNotFoundException('Contact not found');
         }
 
-        $repo = Repository::for(Message::class);
-
-        $message = $repo->create([
-            'contact_id' => $contact->id,
-            'status' => MessageStatus::PENDING->value
+        $domainMessage = $contact->sendMessage([
+            'to'     => $to,
+            'status' => MessageStatus::PENDING->value,
         ]);
 
-        $whatsappPayload = $this->templateBuilder->build($message);
-
-        $repo->update($message->id, [
-            'payload' => $whatsappPayload->values()
+        $persistedMessage = $this->messageRepository->create([
+            'contact_id' => $domainMessage->contactId,
+            'status'     => $domainMessage->status,
+            'payload'    => $domainMessage->payload,
         ]);
+
+        $domainMessage->id = $persistedMessage->id;
+
+        $whatsappPayload = $this->templateBuilder->build($persistedMessage);
+
+        $this->messageRepository->update($persistedMessage->id, [
+            'payload' => $whatsappPayload->values(),
+        ]);
+
+        DomainEventDispatcher::dispatchFrom($contact, $persistedMessage);
 
         return Messenger::send($whatsappPayload);
     }

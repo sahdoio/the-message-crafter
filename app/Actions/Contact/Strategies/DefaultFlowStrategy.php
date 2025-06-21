@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Actions\Contact\Strategies;
 
 use App\DTOs\MessageFlowInputDTO;
+use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Messenger;
 use App\Facades\Repository;
 use App\Models\MessageButton;
 use Domain\Contact\Contracts\IMessageFlow;
 use Domain\Contact\ValueObjects\MessageBody;
 use Domain\Contact\ValueObjects\TextBody;
-use Domain\Shared\Exceptions\ResourceNotFoundException;
 use Illuminate\Support\Facades\Log;
 
 class DefaultFlowStrategy implements IMessageFlow

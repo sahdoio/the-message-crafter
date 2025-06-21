@@ -10,23 +10,38 @@ use ArrayObject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
 
+/**
+ * @template TEntity of object
+ */
 interface IRepository
 {
     public function getQueryBuilder(): Builder; // we can change for mixed in the future
 
     public function getEntity(): mixed;
 
-    public function for(string $className): static;
+    public function for(string $entityClass): self;
 
     public function findAll(?array $filter = null, ?int $take = 15, int $page = 1, ?FilterOptionsDTO $filterOptions = null): PaginationDTO;
 
-    public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null): ?ArrayObject;
+    /**
+     * @return TEntity|null
+     */
+    public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null): ?object;
 
+    /**
+     * @return TEntity|null
+     */
     public function findById(int $id): ?ArrayObject;
 
-    public function create(array $data): ArrayObject;
+    /**
+     * @return TEntity
+     */
+    public function create(array $data): object;
 
-    public function update(int $id, array $data): ArrayObject;
+    /**
+     * @return TEntity
+     */
+    public function update(int $id, array $data): object;
 
     public function destroy(int $id): bool;
 }

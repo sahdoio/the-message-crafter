@@ -4,19 +4,31 @@ declare(strict_types=1);
 
 namespace App\Support;
 
-use App\Facades\Repository;
-use App\Models\Contact;
-use App\Models\MessageButton;
+use App\Exceptions\ResourceNotFoundException;
 use ArrayObject;
 use Domain\Contact\Enums\MessageButtonType;
+use Domain\Contact\Repositories\IContactRepository;
+use Domain\Contact\Repositories\IMessageButtonRepository;
 use Domain\Contact\ValueObjects\MessageBody;
 use Domain\Contact\ValueObjects\TemplateBody;
-use Domain\Shared\Exceptions\ResourceNotFoundException;
 use Ramsey\Uuid\Uuid;
 
-readonly class WhatsappTemplateBuilder
+class WhatsappTemplateBuilder
 {
-    public function __construct(private ?string $templateName = null) {}
+    protected IContactRepository $contactRepository;
+    protected IMessageButtonRepository $buttonRepository;
+
+    public function __construct(
+        protected ?string $templateName = null,
+    )
+    {
+        $this->contactRepository = app(IContactRepository::class);
+        $this->buttonRepository = app(IMessageButtonRepository::class);
+
+        if (is_null($this->templateName)) {
+            $this->templateName = config('whatsapp.template_name');
+        }
+    }
 
     /**
      * @throws ResourceNotFoundException
@@ -37,17 +49,17 @@ readonly class WhatsappTemplateBuilder
 
         $buttonComponents = [];
         foreach (array_slice($buttons, 0, 3) as $index => $action) {
-            $button = Repository::for(MessageButton::class)->create([
+            $button = $this->buttonRepository->create([
                 'button_id' => Uuid::uuid7()->toString(),
                 'message_id' => $message->id,
                 'type' => MessageButtonType::TEXT->value,
-                'action' => $action
+                'action' => $action,
             ]);
 
             $buttonComponents[] = $this->generateButtonComponent($button, $index);
         }
 
-        $contact = Repository::for(Contact::class)->findById($message->contact_id);
+        $contact = $this->contactRepository->findById($message->contact_id);
 
         if (!$contact) {
             throw new ResourceNotFoundException('Contact not found');
@@ -59,10 +71,13 @@ readonly class WhatsappTemplateBuilder
             template: new TemplateBody(
                 name: $this->templateName,
                 languageCode: 'pt_BR',
-                components: array_merge([
-                    $this->generateHeaderComponent($imageUrl),
-                    $this->generateBodyComponent($contact),
-                ], $buttonComponents)
+                components: array_merge(
+                    [
+                        $this->generateHeaderComponent($imageUrl),
+                        $this->generateBodyComponent($contact),
+                    ],
+                    $buttonComponents
+                )
             )
         );
     }
@@ -70,40 +85,35 @@ readonly class WhatsappTemplateBuilder
     private function generateHeaderComponent(string $imageUrl): array
     {
         return [
-            "type" => "header",
-            "parameters" => [
-                [
-                    "type" => "image",
-                    "image" => [
-                        "link" => $imageUrl,
-                    ],
-                ],
-            ],
+            'type' => 'header',
+            'parameters' => [[
+                'type' => 'image',
+                'image' => ['link' => $imageUrl],
+            ]],
         ];
     }
 
     private function generateBodyComponent(ArrayObject $contact): array
     {
         return [
-            "type" => "body",
-            "parameters" => [
-                ["type" => "text", "text" => $contact->name],
-            ],
+            'type' => 'body',
+            'parameters' => [[
+                'type' => 'text',
+                'text' => $contact->name,
+            ]],
         ];
     }
 
     private function generateButtonComponent(ArrayObject $button, int $index): array
     {
         return [
-            "type" => "button",
-            "sub_type" => "quick_reply",
-            "index" => $index,
-            "parameters" => [
-                [
-                    'type' => 'payload',
-                    'payload' => $button->button_id,
-                ],
-            ],
+            'type' => 'button',
+            'sub_type' => 'quick_reply',
+            'index' => $index,
+            'parameters' => [[
+                'type' => 'payload',
+                'payload' => $button->button_id,
+            ]],
         ];
     }
 }

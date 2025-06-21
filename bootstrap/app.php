@@ -1,8 +1,8 @@
 <?php
 
+use App\Exceptions\ResourceNotFoundException;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
-use Domain\Shared\Exceptions\ResourceNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
