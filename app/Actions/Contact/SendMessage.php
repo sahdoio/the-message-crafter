@@ -5,50 +5,34 @@ declare(strict_types=1);
 namespace App\Actions\Contact;
 
 use App\Exceptions\ResourceNotFoundException;
-use App\Support\DomainEventDispatcher;
+use App\Facades\Messenger;
 use App\Support\WhatsappTemplateBuilder;
-use Domain\Contact\Enums\MessageStatus;
-use Domain\Contact\Repositories\IContactRepository;
 use Domain\Contact\Repositories\IMessageRepository;
 
 class SendMessage
 {
-    private WhatsappTemplateBuilder $templateBuilder;
-
     public function __construct(
-        protected IContactRepository $contactRepository,
-        protected IMessageRepository $messageRepository,
-    ) {
-        $templateName = config('whatsapp.template_name');
-        $this->templateBuilder = new WhatsappTemplateBuilder($templateName);
-    }
+        protected IMessageRepository      $messageRepository,
+        protected WhatsappTemplateBuilder $builder
+    ) {}
 
     /**
      * @throws ResourceNotFoundException
      */
-    public function handle(string $to): bool
+    public function exec(int $messageId): void
     {
-        $contact = $this->contactRepository->findOne(['phone' => $to]);
+        $message = $this->messageRepository->findById($messageId);
 
-        if (!$contact) {
-            throw new ResourceNotFoundException('Contact not found');
+        if (!$message) {
+            throw new ResourceNotFoundException('Message not found');
         }
 
-        $message = $contact->startConversation();
+        $payload = $this->builder->build($message);
 
-        $message = $this->messageRepository->create([
-            'contact_id' => $message->contactId,
-            'status'     => $message->status
+        $this->messageRepository->update($message->id, [
+            'payload' => $payload->values(),
         ]);
 
-        $whatsappPayload = $this->templateBuilder->build($message);
-
-        $message = $this->messageRepository->update($message->id, [
-            'payload' => $whatsappPayload->values(),
-        ]);
-
-        DomainEventDispatcher::dispatchFrom($contact, $message);
-
-        return true;
+        Messenger::send($payload);
     }
 }

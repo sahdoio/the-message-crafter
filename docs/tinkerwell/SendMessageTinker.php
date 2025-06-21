@@ -1,6 +1,6 @@
 <?php
 
-use App\Actions\Contact\SendMessage;
+use App\Actions\Contact\startConversation;
 
-$useCase = app(SendMessage::class);
+$useCase = app(startConversation::class);
 $useCase->handle("test");
