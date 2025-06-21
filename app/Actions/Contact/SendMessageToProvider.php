@@ -19,7 +19,7 @@ class SendMessageToProvider
     /**
      * @throws ResourceNotFoundException
      */
-    public function execute(int $messageId): void
+    public function exec(int $messageId): void
     {
         $message = $this->messageRepository->findById($messageId);
 

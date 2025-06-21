@@ -6,7 +6,6 @@ namespace App\Repositories;
 
 use App\DTOs\FilterOptionsDTO;
 use App\DTOs\PaginationDTO;
-use ArrayObject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
 
@@ -16,8 +15,6 @@ use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
 interface IRepository
 {
     public function getQueryBuilder(): Builder; // we can change for mixed in the future
-
-    public function getEntity(): mixed;
 
     public function for(string $entityClass): self;
 
@@ -31,7 +28,7 @@ interface IRepository
     /**
      * @return TEntity|null
      */
-    public function findById(int $id): ?ArrayObject;
+    public function findById(int $id): ?object;
 
     /**
      * @return TEntity

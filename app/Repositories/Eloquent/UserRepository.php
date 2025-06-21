@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Repositories\Eloquent;
 
-use App\Models\User;
+use Domain\User\Entities\User;
 use Domain\User\Repositories\IUserRepository;
 
 class UserRepository extends BaseRepository implements IUserRepository
 {
-    protected string $modelClass = User::class;
+    protected string $entityClass = User::class;
 
     public function createUserToken(int $userId): string
     {
         /**
          * Sanctum way to create a token
-         * @var User $userModel
+         * @var \App\Models\User $userModel
          */
-        $userModel = $this->getEntity()->findOrFail($userId);
+        $userModel = $this->ormObject->findOrFail($userId);
 
         return $userModel->createToken('api-token')->plainTextToken;
     }
@@ -26,9 +26,9 @@ class UserRepository extends BaseRepository implements IUserRepository
     {
         /**
          * Sanctum way to delete all tokens
-         * @var User $userModel
+         * @var \App\Models\User $userModel
          */
-        $userModel = $this->getEntity()->findOrFail($userId);
+        $userModel = $this->ormObject->findOrFail($userId);
 
         $userModel->tokens()->delete();
 

@@ -6,7 +6,7 @@ namespace Domain\Contact\Events;
 
 use Domain\Shared\Events\BaseEvent;
 
-readonly class MessageSentEvent extends BaseEvent
+readonly class MessageSent extends BaseEvent
 {
     public function __construct(
         public int   $messageId,
@@ -14,6 +14,6 @@ readonly class MessageSentEvent extends BaseEvent
         public array $content,
     )
     {
-        parent::__construct('MessageSentEvent');
+        parent::__construct('MessageSent');
     }
 }

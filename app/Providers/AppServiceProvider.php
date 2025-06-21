@@ -2,13 +2,17 @@
 
 namespace App\Providers;
 
+use App\Events\MessageSentEvent;
 use App\Repositories\Eloquent\BaseRepository;
 use App\Repositories\Eloquent\ContactRepository;
+use App\Repositories\Eloquent\MessageRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\IRepository;
 use App\Services\Messenger\Contracts\IMessenger;
 use App\Services\Messenger\Whatsapp\Messenger;
+use Domain\Contact\Events\MessageSent;
 use Domain\Contact\Repositories\IContactRepository;
+use Domain\Contact\Repositories\IMessageRepository;
 use Domain\User\Repositories\IUserRepository;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Repositories
         $this->bindRepositories();
+
+        // Events
+        $this->bindEvents();
     }
 
     /**
@@ -42,5 +49,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IRepository::class, BaseRepository::class);
         $this->app->bind(IUserRepository::class, UserRepository::class);
         $this->app->bind(IContactRepository::class, ContactRepository::class);
+        $this->app->bind(IMessageRepository::class, MessageRepository::class);
+    }
+
+    private function bindEvents(): void
+    {
+        $this->app->singleton('domainEvent.map', function () {
+            return [
+                MessageSentEvent::class => MessageSent::class,
+            ];
+        });
     }
 }

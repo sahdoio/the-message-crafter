@@ -7,7 +7,6 @@ namespace App\Repositories\Eloquent;
 use App\DTOs\FilterOptionsDTO;
 use App\DTOs\PaginationDTO;
 use App\Repositories\IRepository;
-use ArrayObject;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
 use Illuminate\Database\Eloquent\Model;
@@ -20,8 +19,11 @@ use ReflectionException;
  */
 class BaseRepository implements IRepository
 {
-    protected string $modelClass = '';
-    protected Model $modelObject;
+    public Model $ormObject {
+        get {
+            return $this->ormObject;
+        }
+    }
 
     /** @var class-string<TEntity> */
     protected string $entityClass;
@@ -34,7 +36,7 @@ class BaseRepository implements IRepository
     {
         if (!empty($this->entityClass)) {
             $instance = $this->for($this->entityClass);
-            $this->modelObject = $instance->modelObject;
+            $this->ormObject = $instance->ormObject;
             $this->entityClass = $instance->entityClass;
             $this->hydrator = $instance->hydrator;
         }
@@ -44,8 +46,8 @@ class BaseRepository implements IRepository
     {
         $new = clone $this;
         $new->entityClass = $entityClass;
-        $this->modelClass = $this->resolveModelFromEntity($entityClass);
-        $new->modelObject = app($this->modelClass);
+        $modelClass = $this->resolveModelFromEntity($entityClass);
+        $new->ormObject = app($modelClass);
         $new->hydrator = new ReflectionHydrator();
         return $new;
     }
@@ -63,22 +65,20 @@ class BaseRepository implements IRepository
     protected function createEntity(array $data): object
     {
         $reflection = new ReflectionClass($this->entityClass);
-
-        // Bypass the constructor method, so we can use setters,
-        // otherwise we get type errors without having the chance to hydrate the entity
         $entity = $reflection->newInstanceWithoutConstructor();
 
-        return $this->hydrator->hydrate($data, $entity);
+        $camelCaseData = [];
+        foreach ($data as $key => $value) {
+            $camelKey = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $key))));
+            $camelCaseData[$camelKey] = $value;
+        }
+
+        return $this->hydrator->hydrate($camelCaseData, $entity);
     }
 
     public function getQueryBuilder(): Builder
     {
-        return $this->modelObject->newQuery();
-    }
-
-    public function getEntity(): mixed
-    {
-        return $this->modelObject;
+        return $this->ormObject->newQuery();
     }
 
     public function findAll(EloquentQueryBuilder|array|null $filter = [], ?int $take = 15, int $page = 1, ?FilterOptionsDTO $filterOptions = null): PaginationDTO
@@ -96,8 +96,6 @@ class BaseRepository implements IRepository
             fn(Model $item): object => $this->createEntity($item->toArray()),
             $paginated->items()
         );
-
-        dd($entities);
 
         return new PaginationDTO(
             $entities,
@@ -151,6 +149,9 @@ class BaseRepository implements IRepository
         return $query;
     }
 
+    /**
+     * @return TEntity|null
+     */
     public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null): ?object
     {
         $query = $this->getQueryFromFilter($filter, $filterOptions);
@@ -160,7 +161,10 @@ class BaseRepository implements IRepository
         return $result ? $this->createEntity($result->toArray()) : null;
     }
 
-    public function findById(int $id): ?ArrayObject
+    /**
+     * @return TEntity|null
+     */
+    public function findById(int $id): ?object
     {
         return $this->findOne(['id' => $id]);
     }
@@ -179,15 +183,21 @@ class BaseRepository implements IRepository
         return $query->exists();
     }
 
+    /**
+     * @return TEntity
+     */
     public function create(array $data): object
     {
-        $model = $this->modelObject->create($data);
+        $model = $this->ormObject->create($data);
         return $this->createEntity($model->toArray());
     }
 
+    /**
+     * @return TEntity
+     */
     public function update(int $id, array $data): object
     {
-        $model = $this->modelObject->findOrFail($id);
+        $model = $this->ormObject->findOrFail($id);
 
         foreach ($data as $key => $value) {
             $model->{$key} = $value;
@@ -200,7 +210,7 @@ class BaseRepository implements IRepository
 
     public function destroy(int $id): bool
     {
-        $model = $this->modelObject->findOrFail($id);
+        $model = $this->ormObject->findOrFail($id);
         return $model->delete();
     }
 }

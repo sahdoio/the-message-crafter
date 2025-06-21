@@ -5,26 +5,21 @@ declare(strict_types=1);
 namespace App\Support;
 
 use App\Exceptions\ResourceNotFoundException;
-use ArrayObject;
+use App\Facades\Repository;
+use Domain\Contact\Entities\Contact;
+use Domain\Contact\Entities\Message;
+use Domain\Contact\Entities\MessageButton;
 use Domain\Contact\Enums\MessageButtonType;
-use Domain\Contact\Repositories\IContactRepository;
-use Domain\Contact\Repositories\IMessageButtonRepository;
 use Domain\Contact\ValueObjects\MessageBody;
 use Domain\Contact\ValueObjects\TemplateBody;
 use Ramsey\Uuid\Uuid;
 
 class WhatsappTemplateBuilder
 {
-    protected IContactRepository $contactRepository;
-    protected IMessageButtonRepository $buttonRepository;
-
     public function __construct(
         protected ?string $templateName = null,
     )
     {
-        $this->contactRepository = app(IContactRepository::class);
-        $this->buttonRepository = app(IMessageButtonRepository::class);
-
         if (is_null($this->templateName)) {
             $this->templateName = config('whatsapp.template_name');
         }
@@ -33,7 +28,7 @@ class WhatsappTemplateBuilder
     /**
      * @throws ResourceNotFoundException
      */
-    public function build(ArrayObject $message): MessageBody
+    public function build(Message $message): MessageBody
     {
         $imageUrl = config('whatsapp.template_image_url');
 
@@ -49,7 +44,7 @@ class WhatsappTemplateBuilder
 
         $buttonComponents = [];
         foreach (array_slice($buttons, 0, 3) as $index => $action) {
-            $button = $this->buttonRepository->create([
+            $button = Repository::for(MessageButton::class)->create([
                 'button_id' => Uuid::uuid7()->toString(),
                 'message_id' => $message->id,
                 'type' => MessageButtonType::TEXT->value,
@@ -59,7 +54,7 @@ class WhatsappTemplateBuilder
             $buttonComponents[] = $this->generateButtonComponent($button, $index);
         }
 
-        $contact = $this->contactRepository->findById($message->contact_id);
+        $contact = Repository::for(Contact::class)->findById($message->contactId);
 
         if (!$contact) {
             throw new ResourceNotFoundException('Contact not found');
@@ -93,7 +88,7 @@ class WhatsappTemplateBuilder
         ];
     }
 
-    private function generateBodyComponent(ArrayObject $contact): array
+    private function generateBodyComponent(Contact $contact): array
     {
         return [
             'type' => 'body',
@@ -104,7 +99,7 @@ class WhatsappTemplateBuilder
         ];
     }
 
-    private function generateButtonComponent(ArrayObject $button, int $index): array
+    private function generateButtonComponent(MessageButton $button, int $index): array
     {
         return [
             'type' => 'button',
@@ -112,7 +107,7 @@ class WhatsappTemplateBuilder
             'index' => $index,
             'parameters' => [[
                 'type' => 'payload',
-                'payload' => $button->button_id,
+                'payload' => $button->buttonId,
             ]],
         ];
     }

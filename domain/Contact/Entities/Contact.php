@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace Domain\Contact\Entities;
 
 use Domain\Contact\Enums\MessageStatus;
-use Domain\Contact\Events\MessageSentEvent;
+use Domain\Contact\Events\MessageSent;
+use Domain\Shared\Support\HasDomainEvents;
 
 class Contact
 {
+    use HasDomainEvents;
+
     private function __construct(
         public int $id,
         public string $name,
         public string $email,
-        public array $domainEvents = []
+        public string $phone,
     ) {}
 
     public function sendMessage(array $content): Message
@@ -24,7 +27,7 @@ class Contact
         );
 
         $this->domainEvents[] = fn(Message $persistedMessage) => (
-            new MessageSentEvent(
+            new MessageSent(
                 messageId: $persistedMessage->id,
                 contactId: $this->id,
                 content: $content
@@ -32,12 +35,5 @@ class Contact
         );
 
         return $message;
-    }
-
-    public function pullDomainEvents(): array
-    {
-        $events = $this->domainEvents;
-        $this->domainEvents = [];
-        return $events;
     }
 }

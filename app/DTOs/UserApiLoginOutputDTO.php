@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\DTOs;
 
-use ArrayObject;
+use Domain\User\Entities\User;
 
 readonly class UserApiLoginOutputDTO extends DataTransfer
 {
     public function __construct(
         public string $token,
-        public ArrayObject $user
+        public User $user
     ) {}
 }

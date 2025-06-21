@@ -61,5 +61,14 @@ services:
     networks:
       - msg-crafter-network
 
+  msg-crafter-redis:
+    container_name: msg-crafter-redis
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    networks:
+      - msg-crafter-network
+
 volumes:
   msg-crafter-db-volume:

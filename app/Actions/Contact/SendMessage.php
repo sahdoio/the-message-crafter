@@ -6,11 +6,11 @@ namespace App\Actions\Contact;
 
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Messenger;
+use App\Support\DomainEventDispatcher;
 use App\Support\WhatsappTemplateBuilder;
 use Domain\Contact\Enums\MessageStatus;
 use Domain\Contact\Repositories\IContactRepository;
 use Domain\Contact\Repositories\IMessageRepository;
-use Domain\Shared\Support\DomainEventDispatcher;
 
 class SendMessage
 {
@@ -35,18 +35,18 @@ class SendMessage
             throw new ResourceNotFoundException('Contact not found');
         }
 
-        $domainMessage = $contact->sendMessage([
+        $message = $contact->sendMessage([
             'to'     => $to,
             'status' => MessageStatus::PENDING->value,
         ]);
 
         $persistedMessage = $this->messageRepository->create([
-            'contact_id' => $domainMessage->contactId,
-            'status'     => $domainMessage->status,
-            'payload'    => $domainMessage->payload,
+            'contact_id' => $message->contactId,
+            'status'     => $message->status,
+            'payload'    => $message->payload,
         ]);
 
-        $domainMessage->id = $persistedMessage->id;
+        $message->id = $persistedMessage->id;
 
         $whatsappPayload = $this->templateBuilder->build($persistedMessage);
 
