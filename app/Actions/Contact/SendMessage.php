@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Actions\Contact;
 
 use App\Exceptions\ResourceNotFoundException;
-use App\Facades\Messenger;
 use App\Support\DomainEventDispatcher;
 use App\Support\WhatsappTemplateBuilder;
 use Domain\Contact\Enums\MessageStatus;
@@ -56,6 +55,6 @@ class SendMessage
 
         DomainEventDispatcher::dispatchFrom($contact, $persistedMessage);
 
-        return Messenger::send($whatsappPayload);
+        return true;
     }
 }

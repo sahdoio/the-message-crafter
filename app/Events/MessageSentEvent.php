@@ -12,5 +12,5 @@ class MessageSentEvent
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public readonly MessageSent $domainEvent) {}
+    public function __construct(public readonly MessageSent $messageSent) {}
 }

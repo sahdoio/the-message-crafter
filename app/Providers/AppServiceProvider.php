@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton('domainEvent.map', function () {
             return [
-                MessageSentEvent::class => MessageSent::class,
+                MessageSent::class => MessageSentEvent::class,
             ];
         });
     }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Listeners;
 
 use App\Actions\Contact\SendMessageToProvider;
+use App\Events\MessageSentEvent;
 use App\Exceptions\ResourceNotFoundException;
-use Domain\Contact\Events\MessageSent;
 
-class SendMessageToProviderListener
+class MessageSentListener
 {
     public function __construct(
         protected SendMessageToProvider $action
@@ -17,8 +17,8 @@ class SendMessageToProviderListener
     /**
      * @throws ResourceNotFoundException
      */
-    public function handle(MessageSent $event): void
+    public function handle(MessageSentEvent $event): void
     {
-        $this->action->exec($event->messageId);
+        $this->action->exec($event->messageSent->messageId);
     }
 }
