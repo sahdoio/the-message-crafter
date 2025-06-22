@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact;
 
-use App\DTOs\MessageFlowInputDTO;
 use App\DTOs\ProcessMessageCallbackInputDTO;
-use App\Facades\Repository;
-use App\Models\MessageButton;
+use App\Support\Events\DomainEventDispatcher;
+use Domain\Contact\Events\ButtonClicked;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -16,8 +15,6 @@ class ProcessMessageCallback
 {
     const CACHE_PREFIX = 'message-callback-';
     const CACHE_TIME = 86400; // 24 hours in seconds
-
-    public function __construct(protected FlowStrategyResolver $flowStrategyResolver) {}
 
     public function exec(ProcessMessageCallbackInputDTO $data): void
     {
@@ -45,43 +42,28 @@ class ProcessMessageCallback
             }
 
             $hasButtonReply = is_array($buttonReply) && count($buttonReply) > 0;
-            if (false === $hasButtonReply){
+            if (!$hasButtonReply) {
                 Log::warning('ProcessMessageCallback', ['errors' => 'Button reply is missing']);
                 return;
             }
 
-            // If the button is inside a template, the webhook response structure is different
-            // So we need to check if the button is inside a template or not
-            // For interactive message the button id comes inside "id" and title inside "title"
-            // For templates the button id comes inside "payload" and title inside "text"
             $whatsappButtonId = $this->extractButtonId($buttonReply);
             $whatsappExtraInfo = $this->extractExtraInfo($buttonReply);
             $replyAction = Arr::get($buttonReply, 'title') ?? Arr::get($buttonReply, 'text');
 
-            Log::info('ProcessMessageCallback - action selected', [
-                'replyAction' => $replyAction,
-            ]);
+            Log::info('ProcessMessageCallback - Dispatching Domain Event: ButtonClicked');
 
-            $message = Repository::setEntity(MessageButton::class)->findOne([
-                'button_id' => $whatsappButtonId,
-            ]);
-
-            $flowStrategy = $this->flowStrategyResolver->resolve($message);
-            $flowStrategy->handle(new MessageFlowInputDTO(
+            DomainEventDispatcher::dispatch(new ButtonClicked(
+                messageId: $messageId,
                 contactPhone: $recipientId,
                 buttonId: $whatsappButtonId,
                 replyAction: $replyAction,
-                extraInfo: $whatsappExtraInfo,
+                extraInfo: $whatsappExtraInfo
             ));
 
-            Log::info('ProcessMessageCallback - success', [
-                'recipientId' => $recipientId,
-                'button' => $message,
-            ]);
+            Log::info('ProcessMessageCallback - ButtonClicked dispatched');
         } catch (\Exception $exception) {
             Log::error('ProcessMessageCallback', ['error' => $exception]);
-
-            // We don't want to throw the exception here, because we don't want meta to receive the error
         }
     }
 

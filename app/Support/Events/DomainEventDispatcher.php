@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Event;
 
 class DomainEventDispatcher
 {
-    public static function dispatchFrom(object $entity, object $persistedData): void
+    public static function dispatch(object $entity, ?object $closureEventData = null): void
     {
         if (!method_exists($entity, 'pullDomainEvents')) {
             /**
@@ -23,7 +23,7 @@ class DomainEventDispatcher
         $eventMap = app('domainEvent.map');
 
         foreach ($entity->pullDomainEvents() as $factory) {
-            $domainEvent = $factory($persistedData);
+            $domainEvent = $closureEventData ? $factory($closureEventData) : $factory();
 
             $laravelEventClass = $eventMap[get_class($domainEvent)] ?? null;
 

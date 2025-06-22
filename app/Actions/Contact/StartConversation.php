@@ -42,7 +42,7 @@ class StartConversation
             'payload' => $whatsappPayload->values(),
         ]);
 
-        DomainEventDispatcher::dispatchFrom($contact, $message);
+        DomainEventDispatcher::dispatch($contact, $message);
 
         return true;
     }

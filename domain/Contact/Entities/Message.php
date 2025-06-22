@@ -16,7 +16,7 @@ class Message
     public function __construct(
         public ?int $id = null,
         public ?int $contactId = null,
-        public ?string $provider = MessageProvider::FLOW->value,
+        public ?string $provider = MessageProvider::SYSTEM->value,
         public ?string $channel = MessageChannel::WHATSAPP->value,
         public ?string $messageType = MessageType::TEXT->value,
         public ?string $imageUrl = null,
