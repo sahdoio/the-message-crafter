@@ -9,4 +9,6 @@ return [
     'template_image_url' => env('WHATSAPP_TEMPLATE_IMAGE_URL', 'https://example.com/image.jpg'),
     'test_phone_number' => env('WHATSAPP_TEST_PHONE_NUMBER', '5511970954944'),
     'webhook_verify_token' => env('WHATSAPP_WEBHOOK_VERIFY_TOKEN'),
+    'message_type' => env('WHATSAPP_MESSAGE_TYPE', 'template'),
+    'language_code' => env('WHATSAPP_LANGUAGE', 'en'),
 ];

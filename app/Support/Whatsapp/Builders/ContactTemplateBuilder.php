@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Support\Whatsapp;
+namespace App\Support\Whatsapp\Builders;
 
 use Domain\Contact\Entities\Contact;
-use Domain\Contact\Entities\MessageButton;
 
-class TemplateBuilder
+class ContactTemplateBuilder extends TemplateBuilder
 {
-    protected string $templateName;
-
     protected function generateHeaderComponent(string $imageUrl): array
     {
         return [
@@ -29,19 +26,6 @@ class TemplateBuilder
             'parameters' => [[
                 'type' => 'text',
                 'text' => $contact->name,
-            ]],
-        ];
-    }
-
-    protected function generateButtonComponent(MessageButton $button, int $index): array
-    {
-        return [
-            'type' => 'button',
-            'sub_type' => 'quick_reply',
-            'index' => $index,
-            'parameters' => [[
-                'type' => 'payload',
-                'payload' => $button->buttonId,
             ]],
         ];
     }

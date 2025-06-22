@@ -6,8 +6,7 @@ namespace App\Actions\Contact;
 
 use App\Exceptions\ResourceNotFoundException;
 use App\Support\Events\DomainEventDispatcher;
-use App\Support\Whatsapp\StartConversationTemplate;
-use App\Support\Whatsapp\TemplateBuilder;
+use App\Support\Whatsapp\Templates\StartConversationTemplate;
 use Domain\Contact\Repositories\IContactRepository;
 use Domain\Contact\Repositories\IMessageRepository;
 

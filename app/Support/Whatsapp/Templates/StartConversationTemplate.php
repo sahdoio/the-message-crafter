@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Support\Whatsapp;
+namespace App\Support\Whatsapp\Templates;
 
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Repository;
+use App\Support\Whatsapp\Builders\ContactTemplateBuilder;
 use Domain\Contact\Entities\Contact;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Entities\MessageButton;
@@ -14,7 +15,7 @@ use Domain\Contact\ValueObjects\MessageBody;
 use Domain\Contact\ValueObjects\TemplateBody;
 use Ramsey\Uuid\Uuid;
 
-class StartConversationTemplate extends TemplateBuilder
+class StartConversationTemplate extends ContactTemplateBuilder
 {
     public function __construct()
     {
@@ -53,11 +54,11 @@ class StartConversationTemplate extends TemplateBuilder
         }
 
         return new MessageBody(
-            type: 'template',
+            type: config('whatsapp.message_type'),
             to: $contact->phone,
             template: new TemplateBody(
                 name: $this->templateName,
-                languageCode: 'pt_BR',
+                languageCode: config('whatsapp.language_code'),
                 components: array_merge(
                     [
                         $this->generateHeaderComponent($imageUrl),

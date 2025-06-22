@@ -6,7 +6,7 @@ namespace App\Actions\Contact;
 
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Messenger;
-use App\Support\Whatsapp\StartConversationTemplate;
+use App\Support\Whatsapp\Templates\StartConversationTemplate;
 use Domain\Contact\Repositories\IMessageRepository;
 
 class SendMessage
