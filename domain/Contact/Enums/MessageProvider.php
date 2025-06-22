@@ -4,6 +4,6 @@ namespace Domain\Contact\Enums;
 
 enum MessageProvider: string
 {
-    case FLOW = 'flow';
+    case SYSTEM = 'system';
     case AI = 'ai';
 }

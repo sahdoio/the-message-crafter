@@ -1,6 +1,7 @@
 <?php
 
 use Domain\Contact\Enums\MessageChannel;
+use Domain\Contact\Enums\MessageProvider;
 use Domain\Contact\Enums\MessageStatus;
 use Domain\Contact\Enums\MessageType;
 use Illuminate\Database\Migrations\Migration;
@@ -15,8 +16,7 @@ class CreateMessagesTable extends Migration
             $table->id();
             $table->foreignId('contact_id')->constrained()->onDelete('cascade');
 
-            $table->string('provider')->nullable(); // e.g. 'flow' or 'ai'
-
+            $table->enum('provider', array_column(MessageProvider::cases(), 'value'))->nullable();
             $table->enum('channel', array_column(MessageChannel::cases(), 'value'))->nullable();
             $table->enum('message_type', array_column(MessageType::cases(), 'value'))->nullable();
             $table->string('image_url')->nullable();
@@ -26,9 +26,9 @@ class CreateMessagesTable extends Migration
 
             $table->enum('status', array_column(MessageStatus::cases(), 'value'))->default(MessageStatus::PENDING->value);
 
-            $table->timestamp('sent_at')->nullable();
+            $table->unsignedBigInteger('selected_button_id')->nullable();
 
-            $table->nullableMorphs('related');
+            $table->timestamp('sent_at')->nullable();
 
             $table->timestamps();
         });

@@ -9,7 +9,7 @@ use App\Facades\Messenger;
 use App\Support\Whatsapp\Templates\StartConversationTemplate;
 use Domain\Contact\Repositories\IMessageRepository;
 
-class SendMessage
+class SendStartMessage
 {
     public function __construct(
         protected IMessageRepository      $messageRepository,

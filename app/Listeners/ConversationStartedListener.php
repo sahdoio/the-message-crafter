@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
-use App\Actions\Contact\SendMessage;
+use App\Actions\Contact\SendStartMessage;
 use App\Events\ConversationStartedEvent;
 use App\Exceptions\ResourceNotFoundException;
 
 class ConversationStartedListener
 {
     public function __construct(
-        protected SendMessage $action
+        protected SendStartMessage $action
     ) {}
 
     /**

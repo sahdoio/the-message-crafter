@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticationAPIController;
-use App\Http\Controllers\Contact\SendMessageController;
+use App\Http\Controllers\Contact\StartConversationController;
 use App\Http\Controllers\Meta\WebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,5 +24,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
         return $request->user()->makeHidden(['password', 'remember_token', 'email_verified_at', 'created_at', 'updated_at']);
     });
 
-    Route::post('send-message', [SendMessageController::class, 'exec'])->name('send-message');
+    Route::post('start-conversation', [StartConversationController::class, 'exec'])->name('start-conversation');
 });
