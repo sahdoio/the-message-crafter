@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Support;
+namespace App\Support\Events;
 
-use Illuminate\Support\Facades\Event;
 use BadMethodCallException;
+use Illuminate\Support\Facades\Event;
 
 class DomainEventDispatcher
 {

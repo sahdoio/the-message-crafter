@@ -6,14 +6,14 @@ namespace App\Actions\Contact;
 
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Messenger;
-use App\Support\WhatsappTemplateBuilder;
+use App\Support\Whatsapp\StartConversationTemplate;
 use Domain\Contact\Repositories\IMessageRepository;
 
 class SendMessage
 {
     public function __construct(
         protected IMessageRepository      $messageRepository,
-        protected WhatsappTemplateBuilder $builder
+        protected StartConversationTemplate $builder
     ) {}
 
     /**

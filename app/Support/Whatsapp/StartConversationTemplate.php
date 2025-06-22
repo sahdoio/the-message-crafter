@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Support;
+namespace App\Support\Whatsapp;
 
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Repository;
@@ -14,15 +14,11 @@ use Domain\Contact\ValueObjects\MessageBody;
 use Domain\Contact\ValueObjects\TemplateBody;
 use Ramsey\Uuid\Uuid;
 
-class WhatsappTemplateBuilder
+class StartConversationTemplate extends TemplateBuilder
 {
-    public function __construct(
-        protected ?string $templateName = null,
-    )
+    public function __construct()
     {
-        if (is_null($this->templateName)) {
-            $this->templateName = config('whatsapp.template_name');
-        }
+        $this->templateName = config('whatsapp.template_name');
     }
 
     /**
@@ -33,17 +29,13 @@ class WhatsappTemplateBuilder
         $imageUrl = config('whatsapp.template_image_url');
 
         $buttons = [
-            'Solicitar Empréstimo',
-            'Já Solicitei',
-            'Liquidação de Contrato',
-            'Saque-Aniversário FGTS',
-            'Cancelar Empréstimo',
-            'Cópia do Contrato',
-            'Tirar Dúvidas',
+            'Start Course',
+            'Dive Deeper',
+            'Help or Support',
         ];
 
         $buttonComponents = [];
-        foreach (array_slice($buttons, 0, 3) as $index => $action) {
+        foreach ($buttons as $index => $action) {
             $button = Repository::for(MessageButton::class)->create([
                 'button_id' => Uuid::uuid7()->toString(),
                 'message_id' => $message->id,
@@ -75,40 +67,5 @@ class WhatsappTemplateBuilder
                 )
             )
         );
-    }
-
-    private function generateHeaderComponent(string $imageUrl): array
-    {
-        return [
-            'type' => 'header',
-            'parameters' => [[
-                'type' => 'image',
-                'image' => ['link' => $imageUrl],
-            ]],
-        ];
-    }
-
-    private function generateBodyComponent(Contact $contact): array
-    {
-        return [
-            'type' => 'body',
-            'parameters' => [[
-                'type' => 'text',
-                'text' => $contact->name,
-            ]],
-        ];
-    }
-
-    private function generateButtonComponent(MessageButton $button, int $index): array
-    {
-        return [
-            'type' => 'button',
-            'sub_type' => 'quick_reply',
-            'index' => $index,
-            'parameters' => [[
-                'type' => 'payload',
-                'payload' => $button->buttonId,
-            ]],
-        ];
     }
 }

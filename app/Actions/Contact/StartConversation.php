@@ -5,22 +5,19 @@ declare(strict_types=1);
 namespace App\Actions\Contact;
 
 use App\Exceptions\ResourceNotFoundException;
-use App\Support\DomainEventDispatcher;
-use App\Support\WhatsappTemplateBuilder;
+use App\Support\Events\DomainEventDispatcher;
+use App\Support\Whatsapp\StartConversationTemplate;
+use App\Support\Whatsapp\TemplateBuilder;
 use Domain\Contact\Repositories\IContactRepository;
 use Domain\Contact\Repositories\IMessageRepository;
 
 class StartConversation
 {
-    private WhatsappTemplateBuilder $templateBuilder;
-
     public function __construct(
         protected IContactRepository $contactRepository,
         protected IMessageRepository $messageRepository,
-    ) {
-        $templateName = config('whatsapp.template_name');
-        $this->templateBuilder = new WhatsappTemplateBuilder($templateName);
-    }
+        protected StartConversationTemplate $template,
+    ) {}
 
     /**
      * @throws ResourceNotFoundException
@@ -40,7 +37,7 @@ class StartConversation
             'status'     => $message->status
         ]);
 
-        $whatsappPayload = $this->templateBuilder->build($message);
+        $whatsappPayload = $this->template->build($message);
 
         $message = $this->messageRepository->update($message->id, [
             'payload' => $whatsappPayload->values(),
