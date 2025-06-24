@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Events;
 
 use BadMethodCallException;
+use Domain\Shared\Events\HasDomainEvents;
 use Illuminate\Support\Facades\Event;
 
 class DomainEventDispatcher

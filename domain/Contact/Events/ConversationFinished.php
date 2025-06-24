@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Domain\Contact\Events;
 
-use Domain\Shared\Events\BaseEvent;
+use Domain\Shared\Events\DomainEvent;
 
-readonly class FlowCompleted extends BaseEvent
+readonly class ConversationFinished extends DomainEvent
 {
     public function __construct()
     {

@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Actions\Contact;
 
 use App\DTOs\ProcessMessageCallbackInputDTO;
-use App\Support\Events\DomainEventDispatcher;
-use Domain\Contact\Events\ButtonClicked;
+use App\Facades\DomainEventBus;
+use App\Facades\Repository;
+use Domain\Contact\Entities\Contact;
+use Domain\Contact\Entities\Message;
+use Domain\Contact\Entities\MessageButton;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class ProcessMessageCallback
 {
-    const CACHE_PREFIX = 'message-callback-';
-    const CACHE_TIME = 86400; // 24 hours in seconds
+    const string CACHE_PREFIX = 'message-callback-';
+    const int CACHE_TIME = 86400; // 24 hours in seconds
 
     public function exec(ProcessMessageCallbackInputDTO $data): void
     {
@@ -34,8 +37,6 @@ class ProcessMessageCallback
                 return;
             }
 
-            Log::info('ProcessMessageCallback - Incoming Message!', $data->values());
-
             if (is_array($errors) && count($errors) > 0) {
                 Log::error('ProcessMessageCallback', ['errors' => $errors]);
                 return;
@@ -51,15 +52,27 @@ class ProcessMessageCallback
             $whatsappExtraInfo = $this->extractExtraInfo($buttonReply);
             $replyAction = Arr::get($buttonReply, 'title') ?? Arr::get($buttonReply, 'text');
 
-            Log::info('ProcessMessageCallback - Dispatching Domain Event: ButtonClicked');
+            /**
+             * @var MessageButton $messageButton
+             */
+            $messageButton = Repository::for(MessageButton::class)->findOne(['button_id' => $whatsappButtonId]);
+            /**
+             * @var Message $message
+             */
+            $message = Repository::for(Message::class)->findOne(['id' => $messageButton->messageId]);
+            /**
+             * @var Contact $contact
+             */
+            $contact = Repository::for(Contact::class)->findOne(['id' => $message->contactId]);
 
-            DomainEventDispatcher::dispatch(new ButtonClicked(
+            $contact->buttonClicked(
                 messageId: $messageId,
-                contactPhone: $recipientId,
                 buttonId: $whatsappButtonId,
                 replyAction: $replyAction,
                 extraInfo: $whatsappExtraInfo
-            ));
+            );
+
+            DomainEventBus::publishAll($contact->releaseDomainEvents());
 
             Log::info('ProcessMessageCallback - ButtonClicked dispatched');
         } catch (\Exception $exception) {

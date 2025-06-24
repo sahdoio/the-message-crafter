@@ -7,7 +7,7 @@ namespace Domain\Shared\Events;
 use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 
-readonly class BaseEvent
+readonly class DomainEvent
 {
     public string $eventId;
     public DateTimeImmutable $createdAt;

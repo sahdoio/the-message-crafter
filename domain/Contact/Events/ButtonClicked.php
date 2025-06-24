@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Domain\Contact\Events;
 
-use Domain\Shared\Events\BaseEvent;
+use Domain\Shared\Events\DomainEvent;
 
-readonly class ButtonClicked extends BaseEvent
+readonly class ButtonClicked extends DomainEvent
 {
     public function __construct(
         public string $messageId,

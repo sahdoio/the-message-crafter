@@ -10,9 +10,11 @@ use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\IRepository;
 use App\Services\Messenger\Contracts\IMessenger;
 use App\Services\Messenger\Whatsapp\Messenger;
+use App\Support\Events\LaravelEventBus;
 use Domain\Contact\Events\ConversationStarted;
 use Domain\Contact\Repositories\IContactRepository;
 use Domain\Contact\Repositories\IMessageRepository;
+use Domain\Shared\Events\IDomainEventBus;
 use Domain\User\Repositories\IUserRepository;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
@@ -54,10 +56,12 @@ class AppServiceProvider extends ServiceProvider
 
     private function bindEvents(): void
     {
-        $this->app->singleton('domainEvent.map', function () {
-            return [
-                ConversationStarted::class => ConversationStartedEvent::class,
-            ];
+        $eventMap = [
+            ConversationStarted::class => ConversationStartedEvent::class,
+        ];
+
+        $this->app->bind(IDomainEventBus::class, function () use ($eventMap) {
+            return new LaravelEventBus($eventMap);
         });
     }
 }

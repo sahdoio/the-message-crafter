@@ -9,7 +9,8 @@ class MessageButton
     public function __construct(
         public string $id,
         public string $buttonId,
-        public string $label,
-        public ?string $type = 'reply'
+        public string $messageId,
+        public ?string $type = 'reply',
+        public ?string $action = null
     ) {}
 }
