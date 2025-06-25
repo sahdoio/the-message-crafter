@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Domain\Contact\Entities;
 
-use Domain\Contact\Enums\MessageStatus;
+use Domain\Contact\Enums\ConversationStatus;
 use Domain\Contact\Events\ButtonClicked;
 use Domain\Contact\Events\ConversationStarted;
+use Domain\Contact\Exceptions\ConversationAlreadyStartedException;
+use Domain\Contact\Repositories\IConversationRepository;
 use Domain\Shared\Events\HasDomainEvents;
 
 class Contact
@@ -14,25 +16,56 @@ class Contact
     use HasDomainEvents;
 
     public function __construct(
-        public int    $id,
-        public string $name,
-        public string $email,
-        public string $phone,
-    ) {}
-
-    public function startConversation(): Message
+        public ?int    $id = null,
+        public ?string $name = null,
+        public ?string $email = null,
+        public ?string $phone = null,
+        private ?bool  $verified = true
+    )
     {
-        $message = new Message(
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    public function hasName(): bool
+    {
+        return trim($this->name) !== '';
+    }
+
+    public function isExpecting(string $key): bool
+    {
+        // implement based on flow state (e.g. from db or session)
+        return false;
+    }
+
+    public function hasActiveConversation(IConversationRepository $conversationRepository): bool
+    {
+        return $conversationRepository->hasActiveFor($this->id);
+    }
+
+    /**
+     * @throws ConversationAlreadyStartedException
+     */
+    public function startConversation(): Conversation
+    {
+        if ($this->hasActiveConversation()) {
+            throw new ConversationAlreadyStartedException('Only one active conversation allowed');
+        }
+
+        $conversation = new Conversation(
             contactId: $this->id,
-            status: MessageStatus::SENT->value
+            status: ConversationStatus::ACTIVE->value
         );
 
-        $this->recordDomainEvent(fn(Message $persistedMessage) => new ConversationStarted(
-            messageId: $persistedMessage->id,
+        $this->recordDomainEvent(fn(Conversation $persistedConversation) => new ConversationStarted(
+            conversationId: $persistedConversation->id,
             contactId: $this->id,
         ));
 
-        return $message;
+        return $conversation;
     }
 
     public function buttonClicked(

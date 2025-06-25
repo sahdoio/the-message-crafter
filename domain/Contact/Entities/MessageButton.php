@@ -7,7 +7,7 @@ namespace Domain\Contact\Entities;
 class MessageButton
 {
     public function __construct(
-        public string $id,
+        public int $id,
         public string $buttonId,
         public string $messageId,
         public ?string $type = 'reply',

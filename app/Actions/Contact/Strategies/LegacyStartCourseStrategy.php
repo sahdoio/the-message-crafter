@@ -8,15 +8,13 @@ use App\DTOs\MessageFlowInputDTO;
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Messenger;
 use App\Facades\Repository;
-use App\Models\MessageButton;
-use Domain\Contact\Contracts\IMessageFlow;
+use Domain\Contact\Entities\MessageButton;
 use Domain\Contact\ValueObjects\MessageBody;
 use Domain\Contact\ValueObjects\TextBody;
 use Illuminate\Support\Facades\Log;
 
-class DefaultFlowStrategy implements IMessageFlow
+class LegacyStartCourseStrategy implements IMessageFlow
 {
-
     /**
      * @throws ResourceNotFoundException
      */
@@ -29,7 +27,10 @@ class DefaultFlowStrategy implements IMessageFlow
             return;
         }
 
-        $repo = Repository::setEntity(MessageButton::class);
+        $repo = Repository::for(MessageButton::class);
+        /**
+         * @var MessageButton $button
+         */
         $button = $repo->findOne(['button_id' => $data->buttonId]);
 
         if (!$button) {

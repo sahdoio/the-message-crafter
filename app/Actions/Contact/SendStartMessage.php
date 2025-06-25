@@ -19,7 +19,7 @@ class SendStartMessage
     /**
      * @throws ResourceNotFoundException
      */
-    public function exec(int $messageId): void
+    public function handle(int $messageId): void
     {
         $message = $this->messageRepository->findById($messageId);
 

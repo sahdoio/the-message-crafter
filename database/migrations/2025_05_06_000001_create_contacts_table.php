@@ -13,7 +13,7 @@ class CreateContactsTable extends Migration
             $table->string('name')->nullable();
             $table->string('phone')->unique();
             $table->string('email')->unique();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }

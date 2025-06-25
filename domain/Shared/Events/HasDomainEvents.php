@@ -9,6 +9,12 @@ trait HasDomainEvents
     /** @var array<callable|DomainEvent> */
     protected array $domainEvents = [];
 
+    /**
+     * Returns and clears the domain events.
+     *
+     * @param mixed ...$params
+     * @return array
+     */
     public function releaseDomainEvents(mixed ...$params): array
     {
         $events = $this->domainEvents;
@@ -19,6 +25,12 @@ trait HasDomainEvents
         }, $events);
     }
 
+    /**
+     * Add a domain event to the list.
+     *
+     * @param DomainEvent|callable $event
+     * @return void
+     */
     public function recordDomainEvent(DomainEvent|callable $event): void
     {
         $this->domainEvents[] = $event;

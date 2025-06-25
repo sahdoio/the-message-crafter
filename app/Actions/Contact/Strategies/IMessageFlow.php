@@ -1,6 +1,6 @@
 <?php
 
-namespace Domain\Contact\Contracts;
+namespace App\Actions\Contact\Strategies;
 
 use App\DTOs\MessageFlowInputDTO;
 

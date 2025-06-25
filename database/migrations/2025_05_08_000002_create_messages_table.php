@@ -14,7 +14,7 @@ class CreateMessagesTable extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('contact_id')->constrained()->onDelete('cascade');
+            $table->foreignId('conversation_id')->constrained()->onDelete('cascade');
 
             $table->enum('provider', array_column(MessageProvider::cases(), 'value'))->nullable();
             $table->enum('channel', array_column(MessageChannel::cases(), 'value'))->nullable();

@@ -23,7 +23,7 @@ class StartConversation
     /**
      * @throws ResourceNotFoundException
      */
-    public function handle(string $to): bool
+    public function handle(string $to): void
     {
         $contact = $this->contactRepository->findOne(['phone' => $to]);
 
@@ -45,7 +45,5 @@ class StartConversation
         ]);
 
         DomainEventBus::publishAll($contact->releaseDomainEvents($message));
-
-        return true;
     }
 }
