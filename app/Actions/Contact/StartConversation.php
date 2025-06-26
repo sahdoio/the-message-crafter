@@ -7,17 +7,18 @@ namespace App\Actions\Contact;
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\DomainEventBus;
 use App\Support\Whatsapp\Templates\StartConversationTemplate;
+use Domain\Contact\Enums\MessageStatus;
 use Domain\Contact\Repositories\IContactRepository;
+use Domain\Contact\Repositories\IConversationRepository;
 use Domain\Contact\Repositories\IMessageRepository;
-use Domain\Shared\Events\IDomainEventBus;
 
 class StartConversation
 {
     public function __construct(
         protected IContactRepository        $contactRepository,
         protected IMessageRepository        $messageRepository,
-        protected StartConversationTemplate $template,
-        protected IDomainEventBus           $eventBus
+        protected IConversationRepository   $conversationRepository,
+        protected StartConversationTemplate $template
     ) {}
 
     /**
@@ -31,19 +32,24 @@ class StartConversation
             throw new ResourceNotFoundException('Contact not found');
         }
 
-        $message = $contact->startConversation();
+        $conversation = $contact->startConversation($this->conversationRepository);
+
+        $conversation = $this->conversationRepository->create([
+            'contact_id' => $conversation->contactId,
+            'status' => $conversation->status
+        ]);
 
         $message = $this->messageRepository->create([
-            'contact_id' => $message->contactId,
-            'status' => $message->status
+            'conversation_id' => $conversation->id,
+            'status' => MessageStatus::SENT->value
         ]);
 
         $whatsappPayload = $this->template->build($message);
 
-        $message = $this->messageRepository->update($message->id, [
+        $this->messageRepository->update($message->id, [
             'payload' => $whatsappPayload->values(),
         ]);
 
-        DomainEventBus::publishAll($contact->releaseDomainEvents($message));
+        DomainEventBus::publishAll();
     }
 }

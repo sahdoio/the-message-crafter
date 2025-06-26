@@ -15,7 +15,7 @@ class Conversation
 
     public function __construct(
         public ?int $id = null,
-        public int $contactId = null,
+        public ?int $contactId = null,
         public string $status = ConversationStatus::ACTIVE->value,
         public ?DateTimeImmutable $startedAt = null,
         public ?DateTimeImmutable $closedAt = null,

@@ -15,6 +15,8 @@ class Contact
 {
     use HasDomainEvents;
 
+    private IConversationRepository $conversationRepository;
+
     public function __construct(
         public ?int    $id = null,
         public ?string $name = null,
@@ -49,10 +51,12 @@ class Contact
     /**
      * @throws ConversationAlreadyStartedException
      */
-    public function startConversation(): Conversation
+    public function startConversation(IConversationRepository $conversationRepository): Conversation
     {
-        if ($this->hasActiveConversation()) {
-            throw new ConversationAlreadyStartedException('Only one active conversation allowed');
+        if ($this->hasActiveConversation($conversationRepository)) {
+            throw new ConversationAlreadyStartedException(
+                'Contact already has an active conversation'
+            );
         }
 
         $conversation = new Conversation(

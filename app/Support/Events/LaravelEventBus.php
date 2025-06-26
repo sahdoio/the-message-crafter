@@ -7,6 +7,7 @@ namespace App\Support\Events;
 use Domain\Shared\Events\DomainEvent;
 use Domain\Shared\Events\IDomainEventBus;
 use Illuminate\Support\Facades\Event;
+use BadMethodCallException;
 
 class LaravelEventBus implements IDomainEventBus
 {
@@ -17,24 +18,32 @@ class LaravelEventBus implements IDomainEventBus
         $this->map = $eventMap;
     }
 
-    public function publish(DomainEvent $event): void
+    public function publish(object $entity): void
     {
-        $laravelClass = $this->map[get_class($event)] ?? null;
+        if (!method_exists($entity, 'releaseDomainEvents')) {
+            throw new BadMethodCallException(
+                sprintf('Entity %s must implement releaseDomainEvents method.', get_class($entity))
+            );
+        }
 
-        if ($laravelClass) {
-            $wrappedEvent = new $laravelClass($event);
-            Event::dispatch($wrappedEvent);
-        } else {
-            // optionally fallback to dispatching the domain event directly
-            Event::dispatch($event);
+        foreach ($entity->releaseDomainEvents() as $eventFactory) {
+            $event = $eventFactory(); // invoke closure or direct event
+
+            $laravelClass = $this->map[get_class($event)] ?? null;
+
+            if ($laravelClass) {
+                $wrappedEvent = new $laravelClass($event);
+                Event::dispatch($wrappedEvent);
+            } else {
+                Event::dispatch($event);
+            }
         }
     }
 
-    public function publishAll(array $events): void
+    public function publishAll(array $entities): void
     {
-        foreach ($events as $event) {
-            $this->publish($event);
+        foreach ($entities as $entity) {
+            $this->publish($entity);
         }
     }
 }
-

@@ -4,7 +4,7 @@ namespace Domain\Shared\Events;
 
 interface IDomainEventBus
 {
-    public function publish(DomainEvent $event): void;
+    public function publish(object $entity): void;
 
-    public function publishAll(array $events): void;
+    public function publishAll(array $entities): void;
 }
