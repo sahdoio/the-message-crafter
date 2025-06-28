@@ -24,7 +24,7 @@ class WebhookController extends Controller
             Http::whatsapp()->post("/{$businessPhoneId}/messages", [
                     'messaging_product' => 'whatsapp',
                     'to' => $message['from'],
-                    'text' => ['body' => 'Echo: ' . $message['text']['body']],
+                    'text' => ['payload' => 'Echo: ' . $message['text']['payload']],
                     'context' => ['message_id' => $message['id']],
                 ]);
 

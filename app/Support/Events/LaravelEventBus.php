@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Support\Events;
 
-use Domain\Shared\Events\DomainEvent;
-use Domain\Shared\Events\IDomainEventBus;
+use Closure;
 use Illuminate\Support\Facades\Event;
 use BadMethodCallException;
+use ReflectionException;
+use ReflectionFunction;
+use ReflectionNamedType;
+use Domain\Shared\Events\DomainEvent;
+use Domain\Shared\Events\IDomainEventBus;
 
 class LaravelEventBus implements IDomainEventBus
 {
@@ -18,7 +22,37 @@ class LaravelEventBus implements IDomainEventBus
         $this->map = $eventMap;
     }
 
-    public function publish(object $entity): void
+    /**
+     * Publish a single DomainEvent or Closure-based event.
+     * @throws ReflectionException
+     */
+    public function publish(DomainEvent|Closure $event, array $paramsMap = []): void
+    {
+        if ($event instanceof Closure) {
+            $event = $this->resolveEventCallable($event, $paramsMap);
+        }
+
+        $wrapped = $this->map[get_class($event)] ?? null;
+
+        Event::dispatch($wrapped ? new $wrapped($event) : $event);
+    }
+
+    /**
+     * Publish an array of events (DomainEvent or Closure).
+     * @throws ReflectionException
+     */
+    public function publishAll(array $events, array $paramsMap = []): void
+    {
+        foreach ($events as $event) {
+            $this->publish($event, $paramsMap);
+        }
+    }
+
+    /**
+     * Publish all domain events from a single entity.
+     * @throws ReflectionException
+     */
+    public function publishEntity(object $entity, array $paramsMap = []): void
     {
         if (!method_exists($entity, 'releaseDomainEvents')) {
             throw new BadMethodCallException(
@@ -26,24 +60,36 @@ class LaravelEventBus implements IDomainEventBus
             );
         }
 
-        foreach ($entity->releaseDomainEvents() as $eventFactory) {
-            $event = $eventFactory(); // invoke closure or direct event
+        $this->publishAll($entity->releaseDomainEvents(), $paramsMap);
+    }
 
-            $laravelClass = $this->map[get_class($event)] ?? null;
-
-            if ($laravelClass) {
-                $wrappedEvent = new $laravelClass($event);
-                Event::dispatch($wrappedEvent);
-            } else {
-                Event::dispatch($event);
-            }
+    /**
+     * Publish all domain events from a list of entities.
+     * @throws ReflectionException
+     */
+    public function publishEntities(array $entities, array $paramsMap = []): void
+    {
+        foreach ($entities as $entity) {
+            $this->publishEntity($entity, $paramsMap);
         }
     }
 
-    public function publishAll(array $entities): void
+    /**
+     * Resolve closure-based domain events with matching arguments.
+     * @throws ReflectionException
+     */
+    private function resolveEventCallable(Closure $eventFactory, array $paramsMap): object
     {
-        foreach ($entities as $entity) {
-            $this->publish($entity);
+        $reflection = new ReflectionFunction($eventFactory);
+        $returnType = $reflection->getReturnType();
+
+        if (!$returnType instanceof ReflectionNamedType) {
+            return $eventFactory(); // no declared return type
         }
+
+        $eventClass = $returnType->getName();
+        $args = $paramsMap[$eventClass] ?? [];
+
+        return $eventFactory(...$args);
     }
 }

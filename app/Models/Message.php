@@ -14,7 +14,7 @@ class Message extends Model
     protected $table = 'messages';
 
     protected $fillable = [
-        'contact_id',
+        'conversation_id',   // ID of the conversation this message belongs to
         'provider',          // 'flow' or 'ai'
         'channel',           // 'whatsapp' or 'email'
         'message_type',      // 'text', 'template', 'html', etc.
@@ -32,9 +32,9 @@ class Message extends Model
     /**
      * The recipient contact (email or phone).
      */
-    public function contact(): BelongsTo
+    public function comversation(): BelongsTo
     {
-        return $this->belongsTo(Contact::class);
+        return $this->belongsTo(Conversation::class);
     }
 
     /**

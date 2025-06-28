@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Domain\Contact\Entities;
 
-use DateTimeImmutable;
+use DateTime;
 use Domain\Contact\Enums\ConversationStatus;
-use Domain\Contact\Events\ConversationStarted;
 use Domain\Shared\Events\HasDomainEvents;
+use DomainException;
 
 class Conversation
 {
@@ -15,38 +15,31 @@ class Conversation
 
     public function __construct(
         public ?int $id = null,
-        public ?int $contactId = null,
+        public int $contactId,
         public string $status = ConversationStatus::ACTIVE->value,
-        public ?DateTimeImmutable $startedAt = null,
-        public ?DateTimeImmutable $closedAt = null,
+        public ?string $startedAt = null,
+        public ?string $finishedAt = null,
         /** @var Message[] */
         public array $messages = []
     ) {
-        $this->startedAt ??= new DateTimeImmutable();
-
-        if ($status === ConversationStatus::ACTIVE->value) {
-            $this->recordDomainEvent(new ConversationStarted(
-                conversationId: $this->id,
-                contactId: $this->contactId,
-            ));
-        }
+        $this->startedAt ??= new DateTime()->format('Y-m-d H:i:s');
     }
 
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return $this->status === ConversationStatus::ACTIVE->value;
     }
 
-    public function close(): void
+    public function finish(): void
     {
-        $this->status = 'closed';
-        $this->closedAt = new DateTimeImmutable();
+        $this->status = ConversationStatus::FINISHED->value;
+        $this->finishedAt = new DateTime()->format('Y-m-d H:i:s');
     }
 
     public function addMessage(Message $message): void
     {
         if (!$this->isActive()) {
-            throw new \DomainException("Cannot add message to closed conversation.");
+            throw new DomainException("Cannot add message to closed conversation.");
         }
 
         $this->messages[] = $message;

@@ -133,7 +133,7 @@ class BaseRepository implements IRepository
         // apply FilterOptionsDTO if provided
         if (!is_null($filterOptions)) {
             if (!empty($filterOptions->orderBy)) {
-                $direction = strtolower($filterOptions->sortDirection ?? 'asc') === 'desc' ? 'desc' : 'asc';
+                $direction = strtolower($filterOptions->orderDirection ?? 'asc') === 'desc' ? 'desc' : 'asc';
                 $query->orderBy($filterOptions->orderBy, $direction);
             }
 

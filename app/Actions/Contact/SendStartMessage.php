@@ -4,35 +4,44 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact;
 
+use App\DTOs\FilterOptionsDTO;
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Messenger;
 use App\Support\Whatsapp\Templates\StartConversationTemplate;
+use Domain\Contact\Enums\MessageStatus;
+use Domain\Contact\Repositories\IConversationRepository;
 use Domain\Contact\Repositories\IMessageRepository;
 
 class SendStartMessage
 {
     public function __construct(
-        protected IMessageRepository      $messageRepository,
+        protected IConversationRepository   $conversationRepository,
+        protected IMessageRepository        $messageRepository,
         protected StartConversationTemplate $builder
     ) {}
 
     /**
      * @throws ResourceNotFoundException
      */
-    public function handle(int $messageId): void
+    public function handle(int $conversationId): void
     {
-        $message = $this->messageRepository->findById($messageId);
+        $conversation = $this->conversationRepository->findById($conversationId);
+
+        if (!$conversation) {
+            throw new ResourceNotFoundException('Message not found');
+        }
+
+        $message = $this->messageRepository->findOne([
+            'conversation_id' => $conversation->id,
+            'status' => MessageStatus::SENT,
+        ], new FilterOptionsDTO(
+            orderBy: 'created_at',
+        ));
 
         if (!$message) {
             throw new ResourceNotFoundException('Message not found');
         }
 
-        $payload = $this->builder->build($message);
-
-        $this->messageRepository->update($message->id, [
-            'payload' => $payload->values(),
-        ]);
-
-        Messenger::send($payload);
+        Messenger::send($message);
     }
 }

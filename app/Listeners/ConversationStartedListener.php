@@ -19,6 +19,6 @@ class ConversationStartedListener
      */
     public function handle(ConversationStartedEvent $event): void
     {
-        $this->action->handle($event->messageSent->messageId);
+        $this->action->handle($event->conversationStarted->conversationId);
     }
 }

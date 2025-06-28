@@ -14,6 +14,6 @@ readonly class ConversationStarted extends DomainEvent
         public array $content = [],
     )
     {
-        parent::__construct('MessageSent');
+        parent::__construct('ConversationStarted');
     }
 }

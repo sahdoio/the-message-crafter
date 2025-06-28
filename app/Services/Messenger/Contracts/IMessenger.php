@@ -2,10 +2,9 @@
 
 namespace App\Services\Messenger\Contracts;
 
-use App\DTOs\SendMessageInputDTO;
-use Domain\Contact\ValueObjects\MessageBody;
+use Domain\Contact\Entities\Message;
 
 interface IMessenger
 {
-    function send(MessageBody|SendMessageInputDTO $data): bool;
+    public function send(Message $message): bool;
 }

@@ -6,6 +6,7 @@ use App\Events\ButtonClickedEvent;
 use App\Events\ConversationStartedEvent;
 use App\Repositories\Eloquent\BaseRepository;
 use App\Repositories\Eloquent\ContactRepository;
+use App\Repositories\Eloquent\ConversationRepository;
 use App\Repositories\Eloquent\MessageRepository;
 use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\IRepository;
@@ -15,6 +16,7 @@ use App\Support\Events\LaravelEventBus;
 use Domain\Contact\Events\ButtonClicked;
 use Domain\Contact\Events\ConversationStarted;
 use Domain\Contact\Repositories\IContactRepository;
+use Domain\Contact\Repositories\IConversationRepository;
 use Domain\Contact\Repositories\IMessageRepository;
 use Domain\Shared\Events\IDomainEventBus;
 use Domain\User\Repositories\IUserRepository;
@@ -54,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IUserRepository::class, UserRepository::class);
         $this->app->bind(IContactRepository::class, ContactRepository::class);
         $this->app->bind(IMessageRepository::class, MessageRepository::class);
+        $this->app->bind(IConversationRepository::class, ConversationRepository::class);
     }
 
     private function bindEvents(): void

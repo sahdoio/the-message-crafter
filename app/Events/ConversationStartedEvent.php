@@ -12,5 +12,5 @@ class ConversationStartedEvent
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public readonly ConversationStarted $messageSent) {}
+    public function __construct(public readonly ConversationStarted $conversationStarted) {}
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact;
 
+use App\Events\ConversationStartedEvent;
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\DomainEventBus;
 use App\Support\Whatsapp\Templates\StartConversationTemplate;
@@ -32,24 +33,21 @@ class StartConversation
             throw new ResourceNotFoundException('Contact not found');
         }
 
-        $conversation = $contact->startConversation($this->conversationRepository);
+        $contact->setDependencies(conversationRepository: $this->conversationRepository);
 
-        $conversation = $this->conversationRepository->create([
-            'contact_id' => $conversation->contactId,
-            'status' => $conversation->status
-        ]);
+        $conversation = $contact->startConversation();
 
         $message = $this->messageRepository->create([
             'conversation_id' => $conversation->id,
             'status' => MessageStatus::SENT->value
         ]);
 
-        $whatsappPayload = $this->template->build($message);
+        $whatsappPayload = $this->template->build($conversation, $message);
 
         $this->messageRepository->update($message->id, [
             'payload' => $whatsappPayload->values(),
         ]);
 
-        DomainEventBus::publishAll();
+        DomainEventBus::publishEntity($contact);
     }
 }

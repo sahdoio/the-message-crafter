@@ -10,6 +10,7 @@ use Domain\Contact\Events\ConversationStarted;
 use Domain\Contact\Exceptions\ConversationAlreadyStartedException;
 use Domain\Contact\Repositories\IConversationRepository;
 use Domain\Shared\Events\HasDomainEvents;
+use DateTime;
 
 class Contact
 {
@@ -19,17 +20,15 @@ class Contact
 
     public function __construct(
         public ?int    $id = null,
-        public ?string $name = null,
-        public ?string $email = null,
+        public string  $name,
+        public string  $email,
         public ?string $phone = null,
-        private ?bool  $verified = true
-    )
-    {
-    }
+        private bool   $verified = false
+    ) {}
 
-    public function isVerified(): bool
+    public function setDependencies(IConversationRepository $conversationRepository): void
     {
-        return $this->verified;
+        $this->conversationRepository = $conversationRepository;
     }
 
     public function hasName(): bool
@@ -37,35 +36,30 @@ class Contact
         return trim($this->name) !== '';
     }
 
-    public function isExpecting(string $key): bool
+    public function hasActiveConversation(): bool
     {
-        // implement based on flow state (e.g. from db or session)
-        return false;
-    }
-
-    public function hasActiveConversation(IConversationRepository $conversationRepository): bool
-    {
-        return $conversationRepository->hasActiveFor($this->id);
+        return $this->conversationRepository->hasActiveFor($this->id);
     }
 
     /**
      * @throws ConversationAlreadyStartedException
      */
-    public function startConversation(IConversationRepository $conversationRepository): Conversation
+    public function startConversation(): Conversation
     {
-        if ($this->hasActiveConversation($conversationRepository)) {
+        if ($this->hasActiveConversation()) {
             throw new ConversationAlreadyStartedException(
                 'Contact already has an active conversation'
             );
         }
 
-        $conversation = new Conversation(
-            contactId: $this->id,
-            status: ConversationStatus::ACTIVE->value
-        );
+        $conversation = $this->conversationRepository->create([
+            'contact_id' => $this->id,
+            'status' => ConversationStatus::ACTIVE->value,
+            'started_at' => new DateTime()->format('Y-m-d H:i:s'),
+        ]);
 
-        $this->recordDomainEvent(fn(Conversation $persistedConversation) => new ConversationStarted(
-            conversationId: $persistedConversation->id,
+        $this->recordDomainEvent(new ConversationStarted(
+            conversationId: $conversation->id,
             contactId: $this->id,
         ));
 

@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace App\Services\Messenger\Whatsapp;
 
-use App\DTOs\SendMessageInputDTO;
 use App\Services\Messenger\Contracts\IMessenger;
-use Domain\Contact\ValueObjects\MessageBody;
+use Domain\Contact\Entities\Message;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class Messenger implements IMessenger
 {
-    function send(MessageBody|SendMessageInputDTO $data): bool
+    function send(Message $message): bool
     {
-        Log::info('Sending message', ['data' => $data->values()]);
+        $payload = $message->payload;
 
-        $response = Http::whatsapp()->post('/messages', $data->values());
+        Log::info('Sending message', ['data' => $payload]);
+
+        $response = Http::whatsapp()->post('/messages', $payload);
 
         if (!$response->successful()) {
             Log::error('Error sending message', ['response' => $response->json()]);

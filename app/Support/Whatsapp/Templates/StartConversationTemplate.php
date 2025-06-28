@@ -8,6 +8,7 @@ use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Repository;
 use App\Support\Whatsapp\Builders\ContactTemplateBuilder;
 use Domain\Contact\Entities\Contact;
+use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Entities\MessageButton;
 use Domain\Contact\Enums\MessageButtonType;
@@ -25,7 +26,7 @@ class StartConversationTemplate extends ContactTemplateBuilder
     /**
      * @throws ResourceNotFoundException
      */
-    public function build(Message $message): MessageBody
+    public function build(Conversation $conversation, Message $message): MessageBody
     {
         $imageUrl = config('whatsapp.template_image_url');
 
@@ -37,6 +38,7 @@ class StartConversationTemplate extends ContactTemplateBuilder
 
         $buttonComponents = [];
         foreach ($buttons as $index => $action) {
+            /** @var MessageButton $button */
             $button = Repository::for(MessageButton::class)->create([
                 'button_id' => Uuid::uuid7()->toString(),
                 'message_id' => $message->id,
@@ -47,7 +49,8 @@ class StartConversationTemplate extends ContactTemplateBuilder
             $buttonComponents[] = $this->generateButtonComponent($button, $index);
         }
 
-        $contact = Repository::for(Contact::class)->findById($message->contactId);
+        /** @var Contact $contact */
+        $contact = Repository::for(Contact::class)->findById($conversation->contactId);
 
         if (!$contact) {
             throw new ResourceNotFoundException('Contact not found');
