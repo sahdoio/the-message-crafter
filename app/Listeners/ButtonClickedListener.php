@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Listeners;
 
 use App\Actions\Contact\HandleButtonClicked;
-use App\Exceptions\ResourceNotFoundException;
-use Domain\Contact\Events\ButtonClicked;
+use App\Events\ButtonClickedEvent;
 
 class ButtonClickedListener
 {
@@ -14,8 +13,8 @@ class ButtonClickedListener
         protected HandleButtonClicked $action
     ) {}
 
-    public function handle(ButtonClicked $event): void
+    public function handle(ButtonClickedEvent $event): void
     {
-        $this->action->handle();
+        $this->action->handle($event->buttonClicked);
     }
 }

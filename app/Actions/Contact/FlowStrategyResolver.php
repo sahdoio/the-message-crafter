@@ -9,15 +9,16 @@ use App\Actions\Contact\Strategies\HelpOrSupportStrategy;
 use App\Actions\Contact\Strategies\StartCourseStrategy;
 use App\Actions\Contact\Strategies\IMessageFlow;
 use Domain\Contact\Enums\ReplyAction;
+use Illuminate\Pipeline\Pipeline;
 
 readonly class FlowStrategyResolver
 {
-    public function __construct() {}
+    public function __construct(protected Pipeline $pipeline) {}
 
     public function resolve(string $replyAction): IMessageFlow
     {
         return match ($replyAction) {
-            ReplyAction::START_COURSE->value => new StartCourseStrategy(),
+            ReplyAction::START_COURSE->value => new StartCourseStrategy($this->pipeline),
             ReplyAction::DIVE_DEEPER->value => new DiveDeeperStrategy(),
             ReplyAction::HELP_OR_SUPPORT->value => new HelpOrSupportStrategy(),
             default => throw new \InvalidArgumentException("Unsupported reply action: $replyAction"),

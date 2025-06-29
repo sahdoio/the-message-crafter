@@ -8,6 +8,7 @@ use App\DTOs\ProcessMessageCallbackInputDTO;
 use App\Facades\DomainEventBus;
 use App\Facades\Repository;
 use Domain\Contact\Entities\Contact;
+use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Entities\MessageButton;
 use Illuminate\Support\Arr;
@@ -19,7 +20,7 @@ class ProcessMessageCallback
     const string CACHE_PREFIX = 'message-callback-';
     const int CACHE_TIME = 86400; // 24 hours in seconds
 
-    public function exec(ProcessMessageCallbackInputDTO $data): void
+    public function handle(ProcessMessageCallbackInputDTO $data): void
     {
         try {
             $messageId = $data->messageId;
@@ -61,9 +62,14 @@ class ProcessMessageCallback
              */
             $message = Repository::for(Message::class)->findOne(['id' => $messageButton->messageId]);
             /**
+             * @var Conversation $conversation
+             */
+            $conversation = Repository::for(Conversation::class)->findOne(['id' => $message->conversationId]);
+
+            /**
              * @var Contact $contact
              */
-            $contact = Repository::for(Contact::class)->findOne(['id' => $message->contactId]);
+            $contact = Repository::for(Contact::class)->findOne(['id' => $conversation->contactId]);
 
             $contact->buttonClicked(
                 messageId: $messageId,
@@ -72,7 +78,7 @@ class ProcessMessageCallback
                 extraInfo: $whatsappExtraInfo
             );
 
-            DomainEventBus::publishAll($contact->releaseDomainEvents());
+            DomainEventBus::publishEntity($contact);
 
             Log::info('ProcessMessageCallback - ButtonClicked dispatched');
         } catch (\Exception $exception) {

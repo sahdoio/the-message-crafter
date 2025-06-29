@@ -14,7 +14,7 @@ class Message
 {
     public function __construct(
         public ?int               $id = null,
-        public int                $contactId,
+        public int                $conversationId,
         public ?string            $provider = MessageProvider::SYSTEM->value,
         public ?string            $channel = MessageChannel::WHATSAPP->value,
         public ?string            $messageType = MessageType::TEXT->value,
@@ -24,7 +24,7 @@ class Message
         public ?string            $relatedType = null,
         public ?int               $relatedId = null,
         public ?string            $status = MessageStatus::PENDING->value,
-        public ?DateTimeImmutable $sentAt = null,
+        public ?string            $sentAt = null,
         /**
          * @var MessageButton[]
          */

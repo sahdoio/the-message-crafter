@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact;
 
-use App\Events\ConversationStartedEvent;
 use App\Exceptions\ResourceNotFoundException;
 use App\Facades\DomainEventBus;
 use App\Support\Whatsapp\Templates\StartConversationTemplate;
@@ -12,6 +11,7 @@ use Domain\Contact\Enums\MessageStatus;
 use Domain\Contact\Repositories\IContactRepository;
 use Domain\Contact\Repositories\IConversationRepository;
 use Domain\Contact\Repositories\IMessageRepository;
+use Datetime;
 
 class StartConversation
 {
@@ -39,7 +39,8 @@ class StartConversation
 
         $message = $this->messageRepository->create([
             'conversation_id' => $conversation->id,
-            'status' => MessageStatus::SENT->value
+            'status' => MessageStatus::SENT->value,
+            'sent_at' => new DateTime()->format('Y-m-d H:i:s'),
         ]);
 
         $whatsappPayload = $this->template->build($conversation, $message);

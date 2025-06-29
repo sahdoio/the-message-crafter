@@ -11,7 +11,7 @@ interface IDomainEventBus
     /**
      * Publishes a single event (callable or object).
      */
-    public function publish(DomainEvent|Closure $eventOrEvents, array $paramsMap = []): void;
+    public function publish(DomainEvent|Closure $event, array $paramsMap = []): void;
 
     /**
      * Publishes a list of events (can be callables or objects).

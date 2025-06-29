@@ -32,9 +32,15 @@ class LaravelEventBus implements IDomainEventBus
             $event = $this->resolveEventCallable($event, $paramsMap);
         }
 
-        $wrapped = $this->map[get_class($event)] ?? null;
+        $laravelEvent = $this->map[get_class($event)] ?? null;
 
-        Event::dispatch($wrapped ? new $wrapped($event) : $event);
+        if (!$laravelEvent) {
+            throw new BadMethodCallException(
+                sprintf('Error trying to publish event %s. No Laravel event mapped.', get_class($event))
+            );
+        }
+
+        Event::dispatch(new $laravelEvent($event));
     }
 
     /**

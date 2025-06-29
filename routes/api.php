@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticationAPIController;
+use App\Http\Controllers\Contact\ProcessCallbackController;
 use App\Http\Controllers\Contact\StartConversationController;
 use App\Http\Controllers\Meta\WebhookController;
 use Illuminate\Http\Request;
@@ -26,3 +27,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('start-conversation', [StartConversationController::class, 'exec'])->name('start-conversation');
 });
+
+Route::post('process-callback', [ProcessCallbackController::class, 'exec'])->name('process-callback');

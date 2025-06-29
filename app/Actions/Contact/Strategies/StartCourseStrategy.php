@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact\Strategies;
 
+use App\Actions\Contact\Pipes\AskCourse;
 use App\DTOs\MessageFlowInputDTO;
 use Illuminate\Pipeline\Pipeline;
 
@@ -18,9 +19,7 @@ class StartCourseStrategy implements IMessageFlow
         $this->pipeline
             ->send($data)
             ->through([
-                AskName::class,
-                StoreName::class,
-                ConfirmStart::class,
+                AskCourse::class
             ])
             ->then(fn() => null);
     }

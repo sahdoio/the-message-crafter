@@ -12,5 +12,5 @@ class ButtonClickedEvent
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public readonly ButtonClicked $messageSent) {}
+    public function __construct(public readonly ButtonClicked $buttonClicked) {}
 }
