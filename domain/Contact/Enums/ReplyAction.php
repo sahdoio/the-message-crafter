@@ -4,7 +4,7 @@ namespace Domain\Contact\Enums;
 
 enum ReplyAction: string
 {
-    case START_COURSE = 'start_course';
-    case DIVE_DEEPER = 'dive_deeper';
-    case HELP_OR_SUPPORT = 'help_or_support';
+    case START_COURSE = 'Start Course';
+    case DIVE_DEEPER = 'Dive Deeper';
+    case HELP_OR_SUPPORT = 'Help or Support';
 }

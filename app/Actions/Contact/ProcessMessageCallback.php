@@ -72,7 +72,8 @@ class ProcessMessageCallback
             $contact = Repository::for(Contact::class)->findOne(['id' => $conversation->contactId]);
 
             $contact->buttonClicked(
-                messageId: $messageId,
+                conversationId: $conversation->id,
+                messageId: $message->id,
                 buttonId: $whatsappButtonId,
                 replyAction: $replyAction,
                 extraInfo: $whatsappExtraInfo

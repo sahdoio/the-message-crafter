@@ -9,7 +9,8 @@ use Domain\Shared\Events\DomainEvent;
 readonly class ButtonClicked extends DomainEvent
 {
     public function __construct(
-        public string $messageId,
+        public int $conversationId,
+        public int $messageId,
         public string $contactPhone,
         public string $buttonId,
         public string $replyAction,

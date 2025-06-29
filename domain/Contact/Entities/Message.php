@@ -25,6 +25,7 @@ class Message
         public ?int               $relatedId = null,
         public ?string            $status = MessageStatus::PENDING->value,
         public ?string            $sentAt = null,
+        public ?bool              $buttonSelected = null,
         /**
          * @var MessageButton[]
          */

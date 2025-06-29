@@ -14,6 +14,8 @@ class HandleButtonClicked
     public function handle(ButtonClicked $event): void
     {
         $dto = new MessageFlowInputDTO(
+            conversationId: $event->conversationId,
+            messageId: $event->messageId,
             contactPhone: $event->contactPhone,
             buttonId: $event->buttonId,
             replyAction: $event->replyAction,

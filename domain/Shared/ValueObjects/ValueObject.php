@@ -15,7 +15,7 @@ abstract class ValueObject
     {
         foreach ($data as $key => $value) {
             if ($value instanceof self) {
-                $data[$key] = $value->toArray();
+                $data[$key] = $value->values();
             } elseif (is_array($value)) {
                 $data[$key] = $this->deepToArray($value);
             }

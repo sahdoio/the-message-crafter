@@ -10,6 +10,14 @@ class TextBody extends ValueObject
 {
     public function __construct(
         public string $body,
-        public bool $previewUrl = false,
+        public bool   $previewUrl = false,
     ) {}
+
+    public function values(): array
+    {
+        return [
+            'body' => $this->body,
+            'preview_url' => $this->previewUrl, // ✅ correct casing
+        ];
+    }
 }

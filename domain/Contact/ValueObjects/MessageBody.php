@@ -25,11 +25,11 @@ class MessageBody extends ValueObject
         ];
 
         if ($this->type === 'template' && $this->template) {
-            $base['template'] = $this->template->toArray();
+            $base['template'] = $this->template->values();
         }
 
         if ($this->type === 'text' && $this->text) {
-            $base['text'] = $this->text->toArray();
+            $base['text'] = $this->text->values();
         }
 
         return $base;

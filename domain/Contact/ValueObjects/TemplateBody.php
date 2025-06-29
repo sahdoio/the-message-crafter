@@ -14,7 +14,7 @@ class TemplateBody extends ValueObject
         public array $components = [],
     ) {}
 
-    public function toArray(): array
+    public function values(): array
     {
         return [
             'name' => $this->name,

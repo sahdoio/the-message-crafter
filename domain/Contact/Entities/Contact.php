@@ -67,7 +67,8 @@ class Contact
     }
 
     public function buttonClicked(
-        string $messageId,
+        int $conversationId,
+        int $messageId,
         string $buttonId,
         string $replyAction,
         array  $extraInfo = [],
@@ -75,6 +76,7 @@ class Contact
     {
         $this->recordDomainEvent(
             new ButtonClicked(
+                conversationId: $conversationId,
                 messageId: $messageId,
                 contactPhone: $this->phone,
                 buttonId: $buttonId,
