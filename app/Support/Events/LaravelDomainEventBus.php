@@ -13,7 +13,7 @@ use ReflectionNamedType;
 use Domain\Shared\Events\DomainEvent;
 use Domain\Shared\Events\IDomainEventBus;
 
-class LaravelEventBus implements IDomainEventBus
+class LaravelDomainEventBus implements IDomainEventBus
 {
     protected array $map;
 

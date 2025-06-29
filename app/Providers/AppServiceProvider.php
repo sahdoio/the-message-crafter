@@ -12,7 +12,7 @@ use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\IRepository;
 use App\Services\Messenger\Contracts\IMessenger;
 use App\Services\Messenger\Whatsapp\Messenger;
-use App\Support\Events\LaravelEventBus;
+use App\Support\Events\LaravelDomainEventBus;
 use Domain\Contact\Events\ButtonClicked;
 use Domain\Contact\Events\ConversationStarted;
 use Domain\Contact\Repositories\IContactRepository;
@@ -67,7 +67,7 @@ class AppServiceProvider extends ServiceProvider
         ];
 
         $this->app->bind(IDomainEventBus::class, function () use ($eventMap) {
-            return new LaravelEventBus($eventMap);
+            return new LaravelDomainEventBus($eventMap);
         });
     }
 }
