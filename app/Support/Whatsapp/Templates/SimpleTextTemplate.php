@@ -8,8 +8,8 @@ use App\Exceptions\ResourceNotFoundException;
 use App\Facades\Repository;
 use Domain\Contact\Entities\Contact;
 use Domain\Contact\Entities\Conversation;
+use Domain\Contact\ValueObjects\Body\TextBody;
 use Domain\Contact\ValueObjects\MessageBody;
-use Domain\Contact\ValueObjects\TextBody;
 
 class SimpleTextTemplate
 {
@@ -28,7 +28,7 @@ class SimpleTextTemplate
         return new MessageBody(
             type: 'text',
             to: $contact->phone,
-            text: new TextBody(
+            body: new TextBody(
                 body: $text,
                 previewUrl: false
             )

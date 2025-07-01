@@ -12,8 +12,8 @@ use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Entities\MessageButton;
 use Domain\Contact\Enums\MessageButtonType;
+use Domain\Contact\ValueObjects\Body\TemplateBody;
 use Domain\Contact\ValueObjects\MessageBody;
-use Domain\Contact\ValueObjects\TemplateBody;
 use Ramsey\Uuid\Uuid;
 
 class StartConversationTemplate extends ContactTemplateBuilder
@@ -59,7 +59,7 @@ class StartConversationTemplate extends ContactTemplateBuilder
         return new MessageBody(
             type: config('whatsapp.message_type'),
             to: $contact->phone,
-            template: new TemplateBody(
+            body: new TemplateBody(
                 name: $this->templateName,
                 languageCode: config('whatsapp.language_code'),
                 components: array_merge(

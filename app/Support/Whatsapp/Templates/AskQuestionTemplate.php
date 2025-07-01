@@ -12,8 +12,8 @@ use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Entities\MessageButton;
 use Domain\Contact\Enums\MessageButtonType;
+use Domain\Contact\ValueObjects\Body\InteractiveListBody;
 use Domain\Contact\ValueObjects\MessageBody;
-use Domain\Contact\ValueObjects\TextBody;
 use Domain\Shared\Enums\Course;
 use Ramsey\Uuid\Uuid;
 
@@ -31,23 +31,39 @@ class AskQuestionTemplate extends TemplateBuilder
             throw new ResourceNotFoundException('Contact not found');
         }
 
-        // persist all course options as buttons to track replies
+        $rows = [];
         foreach (Course::cases() as $course) {
+            $uuid = Uuid::uuid7()->toString();
+
             Repository::for(MessageButton::class)->create([
-                'button_id' => Uuid::uuid7()->toString(),
+                'button_id' => $uuid,
                 'message_id' => $message->id,
                 'type' => MessageButtonType::TEXT->value,
                 'action' => $course->value,
             ]);
+
+            $rows[] = [
+                'id' => $uuid,
+                'title' => $course->value,
+            ];
         }
 
+        $body = new InteractiveListBody(
+            bodyText: 'Choose your favorite course:',
+            buttonText: 'View Courses',
+            sections: [
+                [
+                    'title' => 'Courses',
+                    'rows' => $rows,
+                ],
+            ],
+            footer: 'Pick one to continue.'
+        );
+
         return new MessageBody(
-            type: 'text',
+            type: 'interactive',
             to: $contact->phone,
-            text: new TextBody(
-                body: 'What course would you like to enroll in?',
-                previewUrl: false
-            )
+            body: $body
         );
     }
 }

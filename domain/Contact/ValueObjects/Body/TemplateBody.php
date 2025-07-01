@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Domain\Contact\ValueObjects;
+namespace Domain\Contact\ValueObjects\Body;
 
-use Domain\Shared\ValueObjects\ValueObject;
-
-class TemplateBody extends ValueObject
+class TemplateBody extends BodyPayload
 {
     public function __construct(
         public string $name,

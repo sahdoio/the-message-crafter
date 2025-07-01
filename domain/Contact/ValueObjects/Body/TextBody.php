@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Domain\Contact\ValueObjects;
+namespace Domain\Contact\ValueObjects\Body;
 
-use Domain\Shared\ValueObjects\ValueObject;
-
-class TextBody extends ValueObject
+class TextBody extends BodyPayload
 {
     public function __construct(
         public string $body,
@@ -17,7 +15,7 @@ class TextBody extends ValueObject
     {
         return [
             'body' => $this->body,
-            'preview_url' => $this->previewUrl, // ✅ correct casing
+            'preview_url' => $this->previewUrl,
         ];
     }
 }
