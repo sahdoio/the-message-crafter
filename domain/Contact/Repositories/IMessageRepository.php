@@ -10,7 +10,4 @@ use Domain\Contact\Entities\Message;
 /**
  * @extends IRepository<Message>
  */
-interface IMessageRepository extends IRepository
-{
-}
-
+interface IMessageRepository extends IRepository {}

@@ -13,6 +13,9 @@ class CreateConversationsTable extends Migration
             $table->foreignId('contact_id')->constrained()->onDelete('cascade');
 
             $table->enum('status', ['active', 'finished'])->default('active');
+            $table->string('strategy_class')->nullable(); // define a strategy atual
+            $table->string('current_step')->nullable();   // define o passo atual da pipeline
+
             $table->timestamp('started_at')->nullable();
             $table->timestamp('finished_at')->nullable();
 

@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact\Strategies;
 
+use App\Actions\Contact\FlowPipeline;
 use App\DTOs\MessageFlowInputDTO;
+use Domain\Contact\Entities\Conversation;
 
 class DiveDeeperStrategy implements IMessageFlow
 {
+    public function __construct(
+        protected FlowPipeline $flow
+    ) {}
 
     function handle(MessageFlowInputDTO $data): void
     {

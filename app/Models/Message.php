@@ -15,6 +15,7 @@ class Message extends Model
 
     protected $fillable = [
         'conversation_id',   // ID of the conversation this message belongs to
+        'conversation_step',  // Step in the conversation flow (if applicable)
         'provider',          // 'flow' or 'ai'
         'channel',           // 'whatsapp' or 'email'
         'message_type',      // 'text', 'template', 'html', etc.
@@ -50,6 +51,6 @@ class Message extends Model
      */
     protected function isSent(): Attribute
     {
-        return Attribute::get(fn () => !is_null($this->sent_at));
+        return Attribute::get(fn() => !is_null($this->sent_at));
     }
 }

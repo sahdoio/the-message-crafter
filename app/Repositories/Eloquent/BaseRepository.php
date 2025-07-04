@@ -10,6 +10,7 @@ use App\Repositories\IRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
 use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
 use Laminas\Hydrator\ReflectionHydrator;
 use ReflectionClass;
 use ReflectionException;
@@ -62,7 +63,7 @@ class BaseRepository implements IRepository
      * Creates an entity instance from a database record
      * @throws ReflectionException
      */
-    protected function createEntity(array $data): object
+    protected function convertToEntity(array $data): object
     {
         $reflection = new ReflectionClass($this->entityClass);
         $entity = $reflection->newInstanceWithoutConstructor();
@@ -74,6 +75,17 @@ class BaseRepository implements IRepository
         }
 
         return $this->hydrator->hydrate($camelCaseData, $entity);
+    }
+
+    protected function convertToModel(object $entity): array
+    {
+        $data = $this->hydrator->extract($entity);
+        $snakeCaseData = [];
+        foreach ($data as $key => $value) {
+            $snakeKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $key));
+            $snakeCaseData[$snakeKey] = $value;
+        }
+        return $snakeCaseData;
     }
 
     public function getQueryBuilder(): Builder
@@ -93,7 +105,10 @@ class BaseRepository implements IRepository
         );
 
         $entities = array_map(
-            fn(Model $item): object => $this->createEntity($item->toArray()),
+        /**
+         * @throws ReflectionException
+         */
+            fn(Model $item): object => $this->convertToEntity($item->toArray()),
             $paginated->items()
         );
 
@@ -151,6 +166,7 @@ class BaseRepository implements IRepository
 
     /**
      * @return TEntity|null
+     * @throws ReflectionException
      */
     public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null): ?object
     {
@@ -158,18 +174,19 @@ class BaseRepository implements IRepository
 
         $result = $query->first();
 
-        return $result ? $this->createEntity($result->toArray()) : null;
+        return $result ? $this->convertToEntity($result->toArray()) : null;
     }
 
     /**
      * @return TEntity|null
+     * @throws ReflectionException
      */
     public function findById(int $id): ?object
     {
         return $this->findOne(['id' => $id]);
     }
 
-    public function exist(array $data): bool
+    public function exists(array $data): bool
     {
         $query = $this->getQueryBuilder();
         foreach ($data as $key => $value) {
@@ -185,18 +202,22 @@ class BaseRepository implements IRepository
 
     /**
      * @return TEntity
+     * @throws ReflectionException
      */
     public function create(array $data): object
     {
+        /** @var Model $model */
         $model = $this->ormObject->create($data);
-        return $this->createEntity($model->toArray());
+        return $this->convertToEntity($model->toArray());
     }
 
     /**
      * @return TEntity
+     * @throws ReflectionException
      */
     public function update(int $id, array $data): object
     {
+        /** @var Model $model */
         $model = $this->ormObject->findOrFail($id);
 
         foreach ($data as $key => $value) {
@@ -205,12 +226,33 @@ class BaseRepository implements IRepository
 
         $model->save();
 
-        return $this->createEntity($model->toArray());
+        return $this->convertToEntity($model->toArray());
     }
 
     public function destroy(int $id): bool
     {
+        /** @var Model $model */
         $model = $this->ormObject->findOrFail($id);
         return $model->delete();
+    }
+
+    /**
+     * @param TEntity $entity
+     * @return TEntity
+     * @throws InvalidArgumentException
+     */
+    public function persistEntity(object $entity): object
+    {
+        if (!$entity instanceof $this->entityClass) {
+            throw new InvalidArgumentException("Entity must be an instance of {$this->entityClass}");
+        }
+
+        $data = $this->convertToModel($entity);
+
+        if ($entity->id) {
+            return $this->update($entity->id, $data);
+        }
+
+        return $this->create($data);
     }
 }

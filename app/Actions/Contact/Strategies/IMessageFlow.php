@@ -6,5 +6,5 @@ use App\DTOs\MessageFlowInputDTO;
 
 interface IMessageFlow
 {
-    function handle(MessageFlowInputDTO $data): void;
+    public function handle(MessageFlowInputDTO $data): void;
 }

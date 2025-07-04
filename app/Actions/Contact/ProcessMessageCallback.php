@@ -57,14 +57,31 @@ class ProcessMessageCallback
              * @var MessageButton $messageButton
              */
             $messageButton = Repository::for(MessageButton::class)->findOne(['button_id' => $whatsappButtonId]);
+
+            if (!$messageButton) {
+                Log::warning('ProcessMessageCallback - MessageButton not found', ['button_id' => $whatsappButtonId]);
+                return;
+            }
+
             /**
              * @var Message $message
              */
             $message = Repository::for(Message::class)->findOne(['id' => $messageButton->messageId]);
+
+            if (!$message) {
+                Log::warning('ProcessMessageCallback - Message not found', ['message_id' => $messageButton->messageId]);
+                return;
+            }
+
             /**
              * @var Conversation $conversation
              */
             $conversation = Repository::for(Conversation::class)->findOne(['id' => $message->conversationId]);
+
+            if (!$conversation) {
+                Log::warning('ProcessMessageCallback - Conversation not found', ['conversation_id' => $message->conversationId]);
+                return;
+            }
 
             /**
              * @var Contact $contact

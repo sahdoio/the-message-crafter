@@ -13,6 +13,6 @@ class ConversationRepository extends BaseRepository implements IConversationRepo
     protected string $entityClass = Conversation::class;
 
     public function hasActiveFor(int $contactId): bool {
-        return $this->exist(['contact_id' => $contactId, 'status' => ConversationStatus::ACTIVE->value]);
+        return $this->exists(['contact_id' => $contactId, 'status' => ConversationStatus::ACTIVE->value]);
     }
 }

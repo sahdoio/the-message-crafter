@@ -14,12 +14,14 @@ class Conversation extends Model
         'contact_id',
         'status',
         'started_at',
-        'closed_at',
+        'finished_at',
+        'strategy_class',
+        'current_step',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
-        'closed_at' => 'datetime',
+        'finished_at' => 'datetime',
     ];
 
     public function contact(): BelongsTo
@@ -30,15 +32,5 @@ class Conversation extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
-    }
-
-    public function isActive(): bool
-    {
-        return $this->status === 'active';
-    }
-
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
     }
 }

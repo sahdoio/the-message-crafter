@@ -14,14 +14,17 @@ class Conversation
     use HasDomainEvents;
 
     public function __construct(
-        public ?int $id = null,
-        public int $contactId,
-        public string $status = ConversationStatus::ACTIVE->value,
+        public ?int    $id = null,
+        public int     $contactId,
+        public string  $status = ConversationStatus::ACTIVE->value,
         public ?string $startedAt = null,
         public ?string $finishedAt = null,
+        public ?string $strategyClass = null,
+        public ?string $currentStep = null,
         /** @var Message[] */
-        public array $messages = []
-    ) {
+        public array   $messages = []
+    )
+    {
         $this->startedAt ??= new DateTime()->format('Y-m-d H:i:s');
     }
 
@@ -48,5 +51,16 @@ class Conversation
     public function hasMessages(): bool
     {
         return count($this->messages) > 0;
+    }
+
+    public function startStrategy(string $strategyClass): void
+    {
+        $this->strategyClass = $strategyClass;
+        $this->currentStep = null;
+    }
+
+    public function advanceToStep(string $step): void
+    {
+        $this->currentStep = $step;
     }
 }

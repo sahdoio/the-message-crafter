@@ -30,6 +30,8 @@ interface IRepository
      */
     public function findById(int $id): ?object;
 
+    public function exists(array $data): bool;
+
     /**
      * @return TEntity
      */
@@ -41,5 +43,11 @@ interface IRepository
     public function update(int $id, array $data): object;
 
     public function destroy(int $id): bool;
+
+    /**
+     * @param TEntity $entity
+     * @return TEntity
+     */
+    public function persistEntity(object $entity): object;
 }
 
