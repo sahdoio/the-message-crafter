@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Contact;
 
-use App\Facades\Repository;
+use App\DTOs\MessageFlowInputDTO;
 use Domain\Contact\Entities\Conversation;
 use Illuminate\Pipeline\Pipeline;
-use App\DTOs\MessageFlowInputDTO;
 
 class FlowPipeline
 {
@@ -19,21 +18,23 @@ class FlowPipeline
         array               $steps
     ): void
     {
+        $steps = $this->skipProcessedSteps($conversation, $steps);
+
+        $this->pipeline
+            ->send($input)
+            ->through($steps)
+            ->then(fn() => null); // fim da pipeline
+    }
+
+    private function skipProcessedSteps(Conversation $conversation, array $steps): array
+    {
         $startFrom = $conversation->currentStep;
-        $found = !$startFrom;
 
-        foreach ($steps as $step) {
-            if (!$found && $step !== $startFrom) {
-                continue;
-            }
+        if (!$startFrom) return $steps;
 
-            $found = true;
+        $index = array_search($startFrom, $steps);
+        if ($index === false) return $steps;
 
-            // Pipes
-            app($step)->handle($input);
-
-            $conversation->advanceToStep($step);
-            Repository::for(Conversation::class)->persistEntity($conversation);
-        }
+        return array_slice($steps, $index);
     }
 }

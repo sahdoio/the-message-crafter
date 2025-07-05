@@ -30,6 +30,10 @@ class AskCourse
             return $next($data);
         }
 
+        Repository::for(Conversation::class)->update($data->conversation->id, [
+            'current_step' => self::class,
+        ]);
+
         $alreadySent = Repository::for(Message::class)->exists([
             'conversation_id' => $data->conversation->id,
             'conversation_step' => self::STEP_ID,
@@ -48,7 +52,8 @@ class AskCourse
 
         $payload = $this->template->build($data->conversation, $message);
 
-        Repository::for(Message::class)->update($message->id, [
+        /** @var Message $message */
+        $message = Repository::for(Message::class)->update($message->id, [
             'payload' => $payload->values(),
         ]);
 
