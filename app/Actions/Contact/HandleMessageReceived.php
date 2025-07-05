@@ -51,13 +51,15 @@ class HandleMessageReceived
             return;
         }
 
-        $strategy = is_null($conversation->strategyClass) ?
-            // New conversation
-            $this->resolver->resolve($event->replyAction) :
-            // Existing conversation
-            app($conversation->strategyClass);
-
-        $conversation->startStrategy($strategy::class);
+        // New conversation
+        if (is_null($conversation->strategyClass)) {
+            $strategy = $this->resolver->resolve($event->replyAction);
+            $conversation->startStrategy($strategy::class);
+        }
+        // Existing conversation
+        else {
+            $strategy = app($conversation->strategyClass);
+        }
 
         /** @var Conversation $conversation */
         $conversation = Repository::for(Conversation::class)->persistEntity($conversation);

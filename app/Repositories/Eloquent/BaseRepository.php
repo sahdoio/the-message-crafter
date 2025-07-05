@@ -82,6 +82,7 @@ class BaseRepository implements IRepository
     protected function convertToModel(object $entity): array
     {
         $data = $this->hydrator->extract($entity);
+
         $snakeCaseData = [];
 
         $reflection = new ReflectionClass($entity);

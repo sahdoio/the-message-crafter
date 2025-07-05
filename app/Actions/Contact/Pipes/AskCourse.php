@@ -27,7 +27,7 @@ class AskCourse
      */
     public function handle(MessageFlowInputDTO $data, Closure $next): ?Closure
     {
-        if ($data->conversation->currentStep && $data->conversation->currentStep !== self::class) {
+        if ($data->conversation->currentStep == self::class) {
             Log::info('AskCourse - Skipping step', [
                 'conversation_id' => $data->conversation->id,
                 'current_step' => $data->conversation->currentStep,
@@ -68,6 +68,11 @@ class AskCourse
         ]);
 
         if (!Messenger::send($message)) {
+            Log::error('AskCourse - Failed to send message', [
+                'conversation_id' => $data->conversation->id,
+                'message_id' => $message->id,
+                'step' => self::STEP_ID,
+            ]);
             return null;
         }
 

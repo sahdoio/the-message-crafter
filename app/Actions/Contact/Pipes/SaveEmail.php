@@ -48,7 +48,7 @@ class SaveEmail
                 'conversation_id' => $data->conversation->id,
                 'status' => MessageStatus::SENT->value,
                 'sent_at' => new DateTime()->format('Y-m-d H:i:s'),
-                'payload' => $this->askEmailSecondTimeTemplate->build()->values(),
+                'payload' => $this->askEmailSecondTimeTemplate->build($data->conversation)->values(),
             ]));
 
             return null;

@@ -27,7 +27,7 @@ class AskEmail
      */
     public function handle(MessageFlowInputDTO $data, Closure $next): mixed
     {
-        if ($data->conversation->currentStep && $data->conversation->currentStep !== self::class) {
+        if ($data->conversation->currentStep == self::class) {
             Log::info('AskEmail - Skipping step', [
                 'conversation_id' => $data->conversation->id,
                 'current_step'    => $data->conversation->currentStep,
