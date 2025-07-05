@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Domain\Contact\Entities;
 
 use Domain\Contact\Enums\ConversationStatus;
-use Domain\Contact\Events\ButtonClicked;
+use Domain\Contact\Events\MessageReceived;
 use Domain\Contact\Events\ConversationStarted;
 use Domain\Contact\Exceptions\ConversationAlreadyStartedException;
 use Domain\Contact\Repositories\IConversationRepository;
@@ -82,7 +82,7 @@ class Contact
         return $conversation;
     }
 
-    public function buttonClicked(
+    public function messageReceived(
         int    $conversationId,
         int    $messageId,
         string $buttonId,
@@ -91,7 +91,7 @@ class Contact
     ): void
     {
         $this->recordDomainEvent(
-            new ButtonClicked(
+            new MessageReceived(
                 conversationId: $conversationId,
                 messageId: $messageId,
                 contactPhone: $this->phone,

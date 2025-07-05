@@ -6,7 +6,7 @@ namespace Domain\Contact\Events;
 
 use Domain\Shared\Events\DomainEvent;
 
-readonly class ButtonClicked extends DomainEvent
+readonly class MessageReceived extends DomainEvent
 {
     public function __construct(
         public int $conversationId,

@@ -7,18 +7,17 @@ namespace App\Actions\Contact;
 use App\DTOs\ProcessMessageCallbackInputDTO;
 use App\Facades\DomainEventBus;
 use App\Facades\Repository;
+use App\HasCache;
 use Domain\Contact\Entities\Contact;
 use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Entities\MessageButton;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class ProcessMessageCallback
 {
-    const string CACHE_PREFIX = 'message-callback-';
-    const int CACHE_TIME = 86400; // 24 hours in seconds
+    use HasCache;
 
     public function handle(ProcessMessageCallbackInputDTO $data): void
     {
@@ -33,7 +32,7 @@ class ProcessMessageCallback
                 return;
             }
 
-            if (!$this->verifyCache($messageId)) {
+            if (!$this->hasCache($messageId)) {
                 Log::info('ProcessMessageCallback - Cache found! Ignoring duplicated message', $data->values());
                 return;
             }
@@ -48,6 +47,8 @@ class ProcessMessageCallback
                 Log::warning('ProcessMessageCallback', ['errors' => 'Button reply is missing']);
                 return;
             }
+
+            Log::info('ProcessMessageCallback - Message Info: ', ['message_id' => $messageId, 'recipient_id' => $recipientId, 'button_reply' => $buttonReply]);
 
             $whatsappButtonId = $this->extractButtonId($buttonReply);
             $whatsappExtraInfo = $this->extractExtraInfo($buttonReply);
@@ -88,7 +89,7 @@ class ProcessMessageCallback
              */
             $contact = Repository::for(Contact::class)->findOne(['id' => $conversation->contactId]);
 
-            $contact->buttonClicked(
+            $contact->messageReceived(
                 conversationId: $conversation->id,
                 messageId: $message->id,
                 buttonId: $whatsappButtonId,
@@ -117,16 +118,5 @@ class ProcessMessageCallback
         $result = explode('|', $result);
         $extraInfo = $result[1] ?? null;
         return $extraInfo && json_validate($extraInfo) ? json_decode($extraInfo, true) : [];
-    }
-
-    private function verifyCache(string $messageId): bool
-    {
-        $cacheKey = self::CACHE_PREFIX . $messageId;
-        $cacheValue = Cache::get($cacheKey);
-        if ($cacheValue) {
-            return false;
-        }
-        Cache::put($cacheKey, true, self::CACHE_TIME);
-        return true;
     }
 }

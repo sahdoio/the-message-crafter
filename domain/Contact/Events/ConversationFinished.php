@@ -8,8 +8,12 @@ use Domain\Shared\Events\DomainEvent;
 
 readonly class ConversationFinished extends DomainEvent
 {
-    public function __construct()
+    public function __construct(
+        public int $conversationId,
+        public int $contactId,
+        public string $finishedAt,
+    )
     {
-        parent::__construct('FlowCompleted');
+        parent::__construct('ConversationFinished');
     }
 }

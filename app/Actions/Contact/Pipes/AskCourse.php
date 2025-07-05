@@ -14,6 +14,7 @@ use DateTime;
 use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Enums\MessageStatus;
+use Illuminate\Support\Facades\Log;
 
 class AskCourse
 {
@@ -27,6 +28,11 @@ class AskCourse
     public function handle(MessageFlowInputDTO $data, Closure $next): ?Closure
     {
         if ($data->conversation->currentStep && $data->conversation->currentStep !== self::class) {
+            Log::info('AskCourse - Skipping step', [
+                'conversation_id' => $data->conversation->id,
+                'current_step' => $data->conversation->currentStep,
+                'step' => self::STEP_ID,
+            ]);
             return $next($data);
         }
 
@@ -40,6 +46,10 @@ class AskCourse
         ]);
 
         if ($alreadySent) {
+            Log::info('AskCourse - Message already sent', [
+                'conversation_id' => $data->conversation->id,
+                'step' => self::STEP_ID,
+            ]);
             return $next($data);
         }
 
@@ -60,6 +70,12 @@ class AskCourse
         if (!Messenger::send($message)) {
             return null;
         }
+
+        Log::info('AskCourse - Message sent successfully', [
+            'conversation_id' => $data->conversation->id,
+            'message_id' => $message->id,
+            'step' => self::STEP_ID,
+        ]);
 
         Repository::for(Conversation::class)->update($data->conversation->id, [
             'current_step' => self::class,

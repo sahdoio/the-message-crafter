@@ -6,6 +6,8 @@ namespace App\Actions\Contact\Strategies;
 
 use App\Actions\Contact\FlowPipeline;
 use App\Actions\Contact\Pipes\AskCourse;
+use App\Actions\Contact\Pipes\AskEmail;
+use App\Actions\Contact\Pipes\SaveEmail;
 use App\DTOs\MessageFlowInputDTO;
 
 class StartCourseStrategy implements IMessageFlow
@@ -21,7 +23,8 @@ class StartCourseStrategy implements IMessageFlow
             conversation: $data->conversation,
             steps: [
                 AskCourse::class,
-                // More tasks soon
+                AskEmail::class,
+                SaveEmail::class,
             ]
         );
     }

@@ -6,6 +6,7 @@ namespace Domain\Contact\Entities;
 
 use DateTime;
 use Domain\Contact\Enums\ConversationStatus;
+use Domain\Contact\Events\ConversationFinished;
 use Domain\Shared\Attributes\SkipPersistence;
 use Domain\Shared\Events\HasDomainEvents;
 use DomainException;
@@ -26,17 +27,20 @@ class Conversation
     #[SkipPersistence]
     public array $messages = [];
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     public static function create(
-        int $contactId,
+        int     $contactId,
         ?string $status = ConversationStatus::ACTIVE->value,
         ?string $startedAt = null,
         ?string $finishedAt = null,
         ?string $strategyClass = null,
         ?string $currentStep = null,
-        array $messages = [],
-    ): self {
+        array   $messages = [],
+    ): self
+    {
         $conversation = new self();
         $conversation->contactId = $contactId;
         $conversation->status = $status ?? ConversationStatus::ACTIVE->value;
@@ -56,8 +60,18 @@ class Conversation
 
     public function finish(): void
     {
+        if (!$this->isActive()) {
+            throw new DomainException("Cannot end a conversation that is not active.");
+        }
+
         $this->status = ConversationStatus::FINISHED->value;
         $this->finishedAt = new DateTime()->format('Y-m-d H:i:s');
+
+        $this->recordDomainEvent(new ConversationFinished(
+            conversationId: $this->id,
+            contactId: $this->contactId,
+            finishedAt: $this->finishedAt
+        ));
     }
 
     public function addMessage(Message $message): void

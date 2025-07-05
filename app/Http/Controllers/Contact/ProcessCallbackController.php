@@ -12,9 +12,7 @@ use Illuminate\Http\JsonResponse;
 
 class ProcessCallbackController extends Controller
 {
-    public function __construct(protected ProcessMessageCallback $action)
-    {
-    }
+    public function __construct(protected ProcessMessageCallback $action) {}
 
     public function exec(ProcessCallbackRequest $request): JsonResponse
     {

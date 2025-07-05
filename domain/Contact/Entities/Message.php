@@ -24,7 +24,7 @@ class Message
     public ?int $relatedId = null;
     public ?string $status = MessageStatus::PENDING->value;
     public ?string $sentAt = null;
-    public ?bool $buttonSelected = null;
+    public ?int $selectedButtonId = null;
 
     /** @var MessageButton[] */
     public array $buttons = [];
@@ -58,7 +58,7 @@ class Message
         $message->relatedId = $relatedId;
         $message->status = $status;
         $message->sentAt = $sentAt;
-        $message->buttonSelected = $buttonSelected;
+        $message->selectedButtonId = $buttonSelected;
         $message->buttons = $buttons;
 
         return $message;
@@ -72,6 +72,6 @@ class Message
     public function markAsSent(): void
     {
         $this->status = 'sent';
-        $this->sentAt = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+        $this->sentAt = new DateTimeImmutable()->format('Y-m-d H:i:s');
     }
 }

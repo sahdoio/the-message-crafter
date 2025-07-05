@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Events;
 
-use Domain\Contact\Events\ButtonClicked;
+use Domain\Contact\Events\MessageReceived;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ButtonClickedEvent
+class MessageReceivedEvent
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public readonly ButtonClicked $buttonClicked) {}
+    public function __construct(public readonly MessageReceived $messageReceived) {}
 }

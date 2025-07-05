@@ -7,6 +7,7 @@ namespace App\Actions\Contact;
 use App\DTOs\MessageFlowInputDTO;
 use Domain\Contact\Entities\Conversation;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Facades\Log;
 
 class FlowPipeline
 {
@@ -22,8 +23,7 @@ class FlowPipeline
 
         $this->pipeline
             ->send($input)
-            ->through($steps)
-            ->then(fn() => null); // fim da pipeline
+            ->through($steps);
     }
 
     private function skipProcessedSteps(Conversation $conversation, array $steps): array

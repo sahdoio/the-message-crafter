@@ -13,11 +13,21 @@ use Domain\Contact\ValueObjects\MessageBody;
 
 class SimpleTextTemplate
 {
+    protected string $text {
+        set {
+            $this->text = $value;
+        }
+    }
+
     /**
      * @throws ResourceNotFoundException
      */
-    public function build(Conversation $conversation, string $text): MessageBody
+    public function build(Conversation $conversation, ?string $text = null): MessageBody
     {
+        if (!is_null($text)) {
+            $this->text = $text;
+        }
+
         /** @var Contact|null $contact */
         $contact = Repository::for(Contact::class)->findById($conversation->contactId);
 
@@ -29,7 +39,7 @@ class SimpleTextTemplate
             type: 'text',
             to: $contact->phone,
             body: new TextBody(
-                body: $text,
+                body: $this->text,
                 previewUrl: false
             )
         );
