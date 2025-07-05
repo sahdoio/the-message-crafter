@@ -23,7 +23,7 @@ class HandleMessageReceived
     public function handle(MessageReceived $event): void
     {
         if (!$this->dealWithMessage($event)) {
-            Log::error('HandleButtonClicked - Message processing failed', [
+            Log::error('HandleMessageReceived - Message processing failed', [
                 'message_id' => $event->messageId,
                 'button_id' => $event->buttonId,
             ]);
@@ -34,7 +34,7 @@ class HandleMessageReceived
         $conversation = Repository::for(Conversation::class)->findById($event->conversationId);
 
         if (!$conversation) {
-            Log::error('HandleButtonClicked - Conversation not found', [
+            Log::error('HandleMessageReceived - Conversation not found', [
                 'conversation_id' => $event->conversationId,
                 'message_id' => $event->messageId,
                 'button_id' => $event->buttonId,
@@ -43,7 +43,7 @@ class HandleMessageReceived
         }
 
         if (!$conversation->isActive()) {
-            Log::warning('HandleButtonClicked - Conversation is not active', [
+            Log::warning('HandleMessageReceived - Conversation is not active', [
                 'conversation_id' => $conversation->id,
                 'message_id' => $event->messageId,
                 'button_id' => $event->buttonId,
@@ -80,7 +80,7 @@ class HandleMessageReceived
         $message = Repository::for(Message::class)->findOne(['id' => $event->messageId]);
 
         if (!$message) {
-            Log::error('HandleButtonClicked - Message not found', [
+            Log::error('HandleMessageReceived - Message not found', [
                 'message_id' => $event->messageId,
                 'button_id' => $event->buttonId,
             ]);
@@ -88,7 +88,7 @@ class HandleMessageReceived
         }
 
         if ($message->selectedButtonId) {
-            Log::warning('HandleButtonClicked - Message already replied', [
+            Log::warning('HandleMessageReceived - Message already replied', [
                 'message_id' => $event->messageId,
                 'button_id' => $event->buttonId,
             ]);
@@ -99,7 +99,7 @@ class HandleMessageReceived
         $messageButton = Repository::for(MessageButton::class)->findOne(['button_id' => $event->buttonId]);
 
         if (!$messageButton) {
-            Log::error('HandleButtonClicked - MessageButton not found', [
+            Log::error('HandleMessageReceived - MessageButton not found', [
                 'button_id' => $event->buttonId,
                 'message_id' => $event->messageId,
             ]);

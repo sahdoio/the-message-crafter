@@ -99,7 +99,7 @@ class ProcessMessageCallback
 
             DomainEventBus::publishEntity($contact);
 
-            Log::info('ProcessMessageCallback - ButtonClicked dispatched');
+            Log::info('ProcessMessageCallback - MessageReceived dispatched');
         } catch (\Exception $exception) {
             Log::error('ProcessMessageCallback', ['error' => $exception]);
         }

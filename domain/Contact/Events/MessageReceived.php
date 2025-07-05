@@ -16,6 +16,6 @@ readonly class MessageReceived extends DomainEvent
         public string $replyAction,
         public array $extraInfo = [],
     ) {
-        parent::__construct('ButtonClicked');
+        parent::__construct('MessageReceived');
     }
 }
