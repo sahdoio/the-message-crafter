@@ -12,25 +12,57 @@ use Domain\Contact\Enums\MessageType;
 
 class Message
 {
-    public function __construct(
-        public ?int               $id = null,
-        public int                $conversationId,
-        public ?string            $provider = MessageProvider::SYSTEM->value,
-        public ?string            $channel = MessageChannel::WHATSAPP->value,
-        public ?string            $messageType = MessageType::TEXT->value,
-        public ?string            $imageUrl = null,
-        public ?string            $messageId = null,
-        public ?array             $payload = [],
-        public ?string            $relatedType = null,
-        public ?int               $relatedId = null,
-        public ?string            $status = MessageStatus::PENDING->value,
-        public ?string            $sentAt = null,
-        public ?bool              $buttonSelected = null,
-        /**
-         * @var MessageButton[]
-         */
-        public array              $buttons = []
-    ) {}
+    public ?int $id = null;
+    public int $conversationId;
+    public ?string $provider = MessageProvider::SYSTEM->value;
+    public ?string $channel = MessageChannel::WHATSAPP->value;
+    public ?string $messageType = MessageType::TEXT->value;
+    public ?string $imageUrl = null;
+    public ?string $messageId = null;
+    public ?array $payload = [];
+    public ?string $relatedType = null;
+    public ?int $relatedId = null;
+    public ?string $status = MessageStatus::PENDING->value;
+    public ?string $sentAt = null;
+    public ?bool $buttonSelected = null;
+
+    /** @var MessageButton[] */
+    public array $buttons = [];
+
+    private function __construct() {}
+
+    public static function create(
+        int $conversationId,
+        ?string $provider = MessageProvider::SYSTEM->value,
+        ?string $channel = MessageChannel::WHATSAPP->value,
+        ?string $messageType = MessageType::TEXT->value,
+        ?string $imageUrl = null,
+        ?string $messageId = null,
+        ?array $payload = [],
+        ?string $relatedType = null,
+        ?int $relatedId = null,
+        ?string $status = MessageStatus::PENDING->value,
+        ?string $sentAt = null,
+        ?bool $buttonSelected = null,
+        array $buttons = [],
+    ): self {
+        $message = new self();
+        $message->conversationId = $conversationId;
+        $message->provider = $provider;
+        $message->channel = $channel;
+        $message->messageType = $messageType;
+        $message->imageUrl = $imageUrl;
+        $message->messageId = $messageId;
+        $message->payload = $payload;
+        $message->relatedType = $relatedType;
+        $message->relatedId = $relatedId;
+        $message->status = $status;
+        $message->sentAt = $sentAt;
+        $message->buttonSelected = $buttonSelected;
+        $message->buttons = $buttons;
+
+        return $message;
+    }
 
     public function isSent(): bool
     {
@@ -40,6 +72,6 @@ class Message
     public function markAsSent(): void
     {
         $this->status = 'sent';
-        $this->sentAt = new DateTimeImmutable();
+        $this->sentAt = (new DateTimeImmutable())->format('Y-m-d H:i:s');
     }
 }

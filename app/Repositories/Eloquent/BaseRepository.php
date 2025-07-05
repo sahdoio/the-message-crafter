@@ -7,9 +7,11 @@ namespace App\Repositories\Eloquent;
 use App\DTOs\FilterOptionsDTO;
 use App\DTOs\PaginationDTO;
 use App\Repositories\IRepository;
+use Domain\Shared\Attributes\SkipPersistence;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentQueryBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Laminas\Hydrator\ReflectionHydrator;
 use ReflectionClass;
@@ -81,10 +83,27 @@ class BaseRepository implements IRepository
     {
         $data = $this->hydrator->extract($entity);
         $snakeCaseData = [];
+
+        $reflection = new ReflectionClass($entity);
+        $properties = $reflection->getProperties();
+
+        // create a map of properties to skip
+        $skipProperties = [];
+        foreach ($properties as $property) {
+            if (!empty($property->getAttributes(SkipPersistence::class))) {
+                $skipProperties[] = $property->getName();
+            }
+        }
+
         foreach ($data as $key => $value) {
+            if (in_array($key, $skipProperties, true)) {
+                continue;
+            }
+
             $snakeKey = strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $key));
             $snakeCaseData[$snakeKey] = $value;
         }
+
         return $snakeCaseData;
     }
 
@@ -247,7 +266,9 @@ class BaseRepository implements IRepository
             throw new InvalidArgumentException("Entity must be an instance of {$this->entityClass}");
         }
 
-        $data = $this->convertToModel($entity);
+        $rawData = $this->convertToModel($entity);
+        $fillable = $this->ormObject->getFillable();
+        $data = array_intersect_key($rawData, array_flip($fillable));
 
         if ($entity->id) {
             return $this->update($entity->id, $data);

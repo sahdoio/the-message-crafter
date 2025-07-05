@@ -30,7 +30,7 @@ class FlowPipeline
             $found = true;
 
             // Pipes
-            new $step()->handle($input);
+            app($step)->handle($input);
 
             $conversation->advanceToStep($step);
             Repository::for(Conversation::class)->persistEntity($conversation);

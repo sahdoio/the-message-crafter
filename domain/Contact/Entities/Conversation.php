@@ -6,6 +6,7 @@ namespace Domain\Contact\Entities;
 
 use DateTime;
 use Domain\Contact\Enums\ConversationStatus;
+use Domain\Shared\Attributes\SkipPersistence;
 use Domain\Shared\Events\HasDomainEvents;
 use DomainException;
 
@@ -13,19 +14,39 @@ class Conversation
 {
     use HasDomainEvents;
 
-    public function __construct(
-        public ?int    $id = null,
-        public int     $contactId,
-        public string  $status = ConversationStatus::ACTIVE->value,
-        public ?string $startedAt = null,
-        public ?string $finishedAt = null,
-        public ?string $strategyClass = null,
-        public ?string $currentStep = null,
-        /** @var Message[] */
-        public array   $messages = []
-    )
-    {
-        $this->startedAt ??= new DateTime()->format('Y-m-d H:i:s');
+    public ?int $id = null;
+    public int $contactId;
+    public string $status = ConversationStatus::ACTIVE->value;
+    public ?string $startedAt = null;
+    public ?string $finishedAt = null;
+    public ?string $strategyClass = null;
+    public ?string $currentStep = null;
+
+    /** @var Message[] */
+    #[SkipPersistence]
+    public array $messages = [];
+
+    private function __construct() {}
+
+    public static function create(
+        int $contactId,
+        ?string $status = ConversationStatus::ACTIVE->value,
+        ?string $startedAt = null,
+        ?string $finishedAt = null,
+        ?string $strategyClass = null,
+        ?string $currentStep = null,
+        array $messages = [],
+    ): self {
+        $conversation = new self();
+        $conversation->contactId = $contactId;
+        $conversation->status = $status ?? ConversationStatus::ACTIVE->value;
+        $conversation->startedAt = $startedAt ?? new DateTime()->format('Y-m-d H:i:s');
+        $conversation->finishedAt = $finishedAt;
+        $conversation->strategyClass = $strategyClass;
+        $conversation->currentStep = $currentStep;
+        $conversation->messages = $messages;
+
+        return $conversation;
     }
 
     public function isActive(): bool

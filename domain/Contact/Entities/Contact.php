@@ -16,15 +16,31 @@ class Contact
 {
     use HasDomainEvents;
 
+    public ?int $id = null;
+    public string $name;
+    public string $email;
+    public ?string $phone = null;
+    public bool $verified = false;
+
     private IConversationRepository $conversationRepository;
 
-    public function __construct(
-        public ?int    $id = null,
-        public string  $name,
-        public string  $email,
-        public ?string $phone = null,
-        private bool   $verified = false
-    ) {}
+    private function __construct() {}
+
+    public static function create(
+        string  $name,
+        string  $email,
+        ?string $phone = null,
+        bool    $verified = false
+    ): self
+    {
+        $contact = new self();
+        $contact->name = $name;
+        $contact->email = $email;
+        $contact->phone = $phone;
+        $contact->verified = $verified;
+
+        return $contact;
+    }
 
     public function setDependencies(IConversationRepository $conversationRepository): void
     {
@@ -67,8 +83,8 @@ class Contact
     }
 
     public function buttonClicked(
-        int $conversationId,
-        int $messageId,
+        int    $conversationId,
+        int    $messageId,
         string $buttonId,
         string $replyAction,
         array  $extraInfo = [],
