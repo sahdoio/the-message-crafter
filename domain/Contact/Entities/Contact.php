@@ -85,8 +85,8 @@ class Contact
     public function messageReceived(
         int    $conversationId,
         int    $messageId,
-        string $buttonId,
         string $replyAction,
+        ?string $buttonId = null,
         array  $extraInfo = [],
     ): void
     {

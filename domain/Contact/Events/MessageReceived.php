@@ -12,7 +12,7 @@ readonly class MessageReceived extends DomainEvent
         public int $conversationId,
         public int $messageId,
         public string $contactPhone,
-        public string $buttonId,
+        public ?string $buttonId = null,
         public string $replyAction,
         public array $extraInfo = [],
     ) {

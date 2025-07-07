@@ -23,7 +23,7 @@ interface IRepository
     /**
      * @return TEntity|null
      */
-    public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null): ?object;
+    public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null, bool $throwException = true): ?object;
 
     /**
      * @return TEntity|null

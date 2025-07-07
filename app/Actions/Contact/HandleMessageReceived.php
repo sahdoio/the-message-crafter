@@ -33,15 +33,6 @@ class HandleMessageReceived
         /** @var Conversation $conversation */
         $conversation = Repository::for(Conversation::class)->findById($event->conversationId);
 
-        if (!$conversation) {
-            Log::error('HandleMessageReceived - Conversation not found', [
-                'conversation_id' => $event->conversationId,
-                'message_id' => $event->messageId,
-                'button_id' => $event->buttonId,
-            ]);
-            return;
-        }
-
         if (!$conversation->isActive()) {
             Log::warning('HandleMessageReceived - Conversation is not active', [
                 'conversation_id' => $conversation->id,
@@ -81,14 +72,6 @@ class HandleMessageReceived
         /** @var Message $message */
         $message = Repository::for(Message::class)->findOne(['id' => $event->messageId]);
 
-        if (!$message) {
-            Log::error('HandleMessageReceived - Message not found', [
-                'message_id' => $event->messageId,
-                'button_id' => $event->buttonId,
-            ]);
-            return false;
-        }
-
         if ($message->selectedButtonId) {
             Log::warning('HandleMessageReceived - Message already replied', [
                 'message_id' => $event->messageId,
@@ -99,14 +82,6 @@ class HandleMessageReceived
 
         /** @var MessageButton $messageButton */
         $messageButton = Repository::for(MessageButton::class)->findOne(['button_id' => $event->buttonId]);
-
-        if (!$messageButton) {
-            Log::error('HandleMessageReceived - MessageButton not found', [
-                'button_id' => $event->buttonId,
-                'message_id' => $event->messageId,
-            ]);
-            return false;
-        }
 
         Repository::for(Message::class)->update($message->id, [
             'selected_button_id' => $messageButton->id,

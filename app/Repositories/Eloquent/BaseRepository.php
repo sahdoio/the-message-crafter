@@ -6,6 +6,7 @@ namespace App\Repositories\Eloquent;
 
 use App\DTOs\FilterOptionsDTO;
 use App\DTOs\PaginationDTO;
+use App\Exceptions\ResourceNotFoundException;
 use App\Repositories\IRepository;
 use Domain\Shared\Attributes\SkipPersistence;
 use Illuminate\Database\Eloquent\Builder;
@@ -187,14 +188,21 @@ class BaseRepository implements IRepository
     /**
      * @return TEntity|null
      * @throws ReflectionException
+     * @throws ResourceNotFoundException
      */
-    public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null): ?object
+    public function findOne(EloquentQueryBuilder|array|null $filter = [], ?FilterOptionsDTO $filterOptions = null, bool $throwException = true): ?object
     {
         $query = $this->getQueryFromFilter($filter, $filterOptions);
 
         $result = $query->first();
 
-        return $result ? $this->convertToEntity($result->toArray()) : null;
+        $result =  $result ? $this->convertToEntity($result->toArray()) : null;
+
+        if ($throwException && !$result) {
+            throw new ResourceNotFoundException("Entity of type {$this->entityClass} not found with the provided filter.");
+        }
+
+        return $result;
     }
 
     /**

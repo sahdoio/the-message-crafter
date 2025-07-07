@@ -10,6 +10,7 @@ readonly class ProcessMessageCallbackInputDTO extends DataTransfer
         public ?string $messageId = null,
         public ?string $recipientId = null,
         public ?array $buttonReply = [],
+        public ?string $text = null,
         public ?array $errors = []
     )  {}
 }

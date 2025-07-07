@@ -15,10 +15,7 @@ class ProcessCallbackRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            // None of these fields are required, as the request can contain various types of data.
-            // Meta must receive always an ok status.
-        ];
+        return [];
     }
 
     public function messageId(): string
@@ -44,6 +41,15 @@ class ProcessCallbackRequest extends FormRequest
             'list_reply' => data_get($message, 'interactive.list_reply', []),
             default => [],
         };
+    }
+
+    public function textMessage(): ?array
+    {
+        $message = data_get($this, 'entry.0.changes.0.value.messages.0', []);
+
+        return ($message['type'] ?? null) === 'text'
+            ? data_get($message, 'text', [])
+            : null;
     }
 
     public function errorsList(): array

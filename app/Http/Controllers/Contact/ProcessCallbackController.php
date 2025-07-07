@@ -20,6 +20,7 @@ class ProcessCallbackController extends Controller
             messageId: $request->messageId(),
             recipientId: $request->recipientId(),
             buttonReply: $request->buttonReply(),
+            text: $request->textMessage(),
             errors: $request->errorsList()
         ));
 
