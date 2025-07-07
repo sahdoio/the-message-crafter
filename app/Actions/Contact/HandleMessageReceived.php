@@ -9,6 +9,7 @@ use App\Facades\Repository;
 use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
 use Domain\Contact\Entities\MessageButton;
+use Domain\Contact\Enums\MessageStatus;
 use Domain\Contact\Events\MessageReceived;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -46,8 +47,7 @@ class HandleMessageReceived
         if (is_null($conversation->strategyClass)) {
             $strategy = $this->resolver->resolve($event->replyAction);
             $conversation->startStrategy($strategy::class);
-        }
-        // Existing conversation
+        } // Existing conversation
         else {
             $strategy = app($conversation->strategyClass);
         }
@@ -59,8 +59,8 @@ class HandleMessageReceived
             conversation: $conversation,
             messageId: $event->messageId,
             contactPhone: $event->contactPhone,
-            buttonId: $event->buttonId,
             replyAction: $event->replyAction,
+            buttonId: $event->buttonId,
             extraInfo: $event->extraInfo
         );
 
@@ -72,7 +72,7 @@ class HandleMessageReceived
         /** @var Message $message */
         $message = Repository::for(Message::class)->findOne(['id' => $event->messageId]);
 
-        if ($message->selectedButtonId) {
+        if ($message->status == MessageStatus::FINISHED->name) {
             Log::warning('HandleMessageReceived - Message already replied', [
                 'message_id' => $event->messageId,
                 'button_id' => $event->buttonId,
@@ -80,11 +80,17 @@ class HandleMessageReceived
             return false;
         }
 
-        /** @var MessageButton $messageButton */
-        $messageButton = Repository::for(MessageButton::class)->findOne(['button_id' => $event->buttonId]);
+        if ($event->buttonId) {
+            /** @var MessageButton $messageButton */
+            $messageButton = Repository::for(MessageButton::class)->findOne(['button_id' => $event->buttonId]);
+
+            Repository::for(Message::class)->update($message->id, [
+                'selected_button_id' => $messageButton->id,
+            ]);
+        }
 
         Repository::for(Message::class)->update($message->id, [
-            'selected_button_id' => $messageButton->id,
+            'status' => MessageStatus::FINISHED->value,
         ]);
 
         return true;

@@ -95,8 +95,8 @@ class Contact
                 conversationId: $conversationId,
                 messageId: $messageId,
                 contactPhone: $this->phone,
-                buttonId: $buttonId,
                 replyAction: $replyAction,
+                buttonId: $buttonId,
                 extraInfo: $extraInfo
             )
         );

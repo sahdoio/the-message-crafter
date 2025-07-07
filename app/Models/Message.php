@@ -22,6 +22,7 @@ class Message extends Model
         'image_url',         //  URL of the image sent (if applicable)
         'payload',           //  message content (array or json)
         'status',            // 'pending', 'sent', 'failed'
+        'reply_text',        //  reply from the user (if applicable)
         'sent_at',           //  datetime the message was sent
     ];
 

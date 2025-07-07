@@ -12,8 +12,8 @@ readonly class MessageReceived extends DomainEvent
         public int $conversationId,
         public int $messageId,
         public string $contactPhone,
-        public ?string $buttonId = null,
         public string $replyAction,
+        public ?string $buttonId = null,
         public array $extraInfo = [],
     ) {
         parent::__construct('MessageReceived');

@@ -43,12 +43,12 @@ class ProcessCallbackRequest extends FormRequest
         };
     }
 
-    public function textMessage(): ?array
+    public function textMessage(): ?string
     {
         $message = data_get($this, 'entry.0.changes.0.value.messages.0', []);
 
         return ($message['type'] ?? null) === 'text'
-            ? data_get($message, 'text', [])
+            ? data_get($message, 'text.body')
             : null;
     }
 

@@ -54,8 +54,8 @@ class SaveEmail
             return null;
         }
 
-        Repository::for(Conversation::class)->update($data->conversation->id, [
-            'email' => $email,
+        Repository::for(Message::class)->update($data->messageId, [
+            'reply_text' => $email,
         ]);
 
         Messenger::send(Repository::for(Message::class)->create([

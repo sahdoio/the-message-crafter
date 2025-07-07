@@ -24,6 +24,8 @@ class HandleConversationFinished
      */
     public function handle(ConversationFinishedEvent $event): void
     {
+        dd($event);
+
         $data = $event->conversationFinished;
 
         /** @var Conversation $conversation */

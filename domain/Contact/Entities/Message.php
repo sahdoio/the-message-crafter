@@ -22,7 +22,7 @@ class Message
     public ?array $payload = [];
     public ?string $relatedType = null;
     public ?int $relatedId = null;
-    public ?string $status = MessageStatus::PENDING->value;
+    public ?string $status = MessageStatus::SENT->value;
     public ?string $sentAt = null;
     public ?int $selectedButtonId = null;
 
@@ -41,7 +41,7 @@ class Message
         ?array $payload = [],
         ?string $relatedType = null,
         ?int $relatedId = null,
-        ?string $status = MessageStatus::PENDING->value,
+        ?string $status = MessageStatus::SENT->value,
         ?string $sentAt = null,
         ?bool $buttonSelected = null,
         array $buttons = [],

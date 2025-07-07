@@ -12,8 +12,8 @@ readonly class MessageFlowInputDTO extends DataTransfer
         public Conversation $conversation,
         public int          $messageId,
         public string       $contactPhone,
-        public string       $buttonId,
         public string       $replyAction,
+        public ?string      $buttonId,
         public array        $extraInfo
     ) {}
 }

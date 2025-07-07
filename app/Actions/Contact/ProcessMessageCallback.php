@@ -116,7 +116,10 @@ class ProcessMessageCallback
         $message = Repository::for(Message::class)->findOne([
             'conversation_id' => $conversation->id,
             'status' => MessageStatus::SENT->value,
-        ]);
+        ], new FilterOptionsDTO(
+            orderBy: 'created_at',
+            orderDirection: 'desc',
+        ));
 
         $contact->messageReceived(
             conversationId: $conversation->id,

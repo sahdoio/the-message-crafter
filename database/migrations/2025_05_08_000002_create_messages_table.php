@@ -25,9 +25,11 @@ class CreateMessagesTable extends Migration
             $table->string('message_id')->nullable();
             $table->json('payload')->nullable();
 
-            $table->enum('status', array_column(MessageStatus::cases(), 'value'))->default(MessageStatus::PENDING->value);
+            $table->enum('status', array_column(MessageStatus::cases(), 'value'))->default(MessageStatus::SENT->value);
 
             $table->unsignedBigInteger('selected_button_id')->nullable();
+
+            $table->string('reply_text')->nullable();
 
             $table->timestamp('sent_at')->nullable();
 
