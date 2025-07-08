@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\ConversationFinishedEvent;
 use App\Events\MessageReceivedEvent;
 use App\Events\ConversationStartedEvent;
 use App\Repositories\Eloquent\BaseRepository;
@@ -13,6 +14,7 @@ use App\Repositories\IRepository;
 use App\Services\Messenger\Contracts\IMessenger;
 use App\Services\Messenger\Whatsapp\Messenger;
 use App\Support\Events\LaravelDomainEventBus;
+use Domain\Contact\Events\ConversationFinished;
 use Domain\Contact\Events\MessageReceived;
 use Domain\Contact\Events\ConversationStarted;
 use Domain\Contact\Repositories\IContactRepository;
@@ -63,6 +65,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $eventMap = [
             ConversationStarted::class => ConversationStartedEvent::class,
+            ConversationFinished::class => ConversationFinishedEvent::class,
             MessageReceived::class => MessageReceivedEvent::class,
         ];
 
