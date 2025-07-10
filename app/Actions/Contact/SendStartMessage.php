@@ -27,10 +27,6 @@ class SendStartMessage
     {
         $conversation = $this->conversationRepository->findById($conversationId);
 
-        if (!$conversation) {
-            throw new ResourceNotFoundException('Message not found');
-        }
-
         $message = $this->messageRepository->findOne([
             'conversation_id' => $conversation->id,
             'status' => MessageStatus::SENT,

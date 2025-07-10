@@ -8,7 +8,7 @@ use App\DTOs\FilterOptionsDTO;
 use App\DTOs\ProcessMessageCallbackInputDTO;
 use App\Facades\DomainEventBus;
 use App\Facades\Repository;
-use App\HasCache;
+use App\Support\Cache\HasCache;
 use Domain\Contact\Entities\Contact;
 use Domain\Contact\Entities\Conversation;
 use Domain\Contact\Entities\Message;
