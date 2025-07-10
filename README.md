@@ -2,6 +2,9 @@
 
 **Message Crafter** is a PHP 8.4-based application that integrates with the Meta WhatsApp API using the **Strategy Pattern** to manage and send messages. Built with PostgreSQL, Node.js 22, Inertia.js, and Vue 3.
 
+📺 **Watch the introduction video:**  
+[![Watch on YouTube](https://img.youtube.com/vi/d31CAhquhXw/hqdefault.jpg)](https://youtu.be/d31CAhquhXw)
+
 ---
 
 ## 🧱 Stack
