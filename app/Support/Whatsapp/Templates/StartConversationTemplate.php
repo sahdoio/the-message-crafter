@@ -28,8 +28,6 @@ class StartConversationTemplate extends ContactTemplateBuilder
      */
     public function build(Conversation $conversation, Message $message): MessageBody
     {
-        $imageUrl = config('whatsapp.template_image_url');
-
         $buttons = [
             'Start Course',
             'Dive Deeper',
@@ -64,12 +62,17 @@ class StartConversationTemplate extends ContactTemplateBuilder
                 languageCode: config('whatsapp.language_code'),
                 components: array_merge(
                     [
-                        $this->generateHeaderComponent($imageUrl),
+                        $this->generateHeaderComponent($this->imageUrl()),
                         $this->generateBodyComponent($contact),
                     ],
                     $buttonComponents
                 )
             )
         );
+    }
+
+    public function imageUrl(): ?string
+    {
+        return config('whatsapp.template_image_url');
     }
 }

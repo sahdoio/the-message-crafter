@@ -19,8 +19,6 @@ class FlowPipeline
         array               $steps
     ): void
     {
-        $steps = $this->skipProcessedSteps($conversation, $steps);
-
         Log::info('FlowPipeline - Processing steps', [
             'conversation_id' => $conversation->id,
             'steps' => $steps,
@@ -35,18 +33,5 @@ class FlowPipeline
                     'final_step' => get_class($data),
                 ]);
             });
-    }
-
-    private function skipProcessedSteps(Conversation $conversation, array $steps): array
-    {
-        $startFrom = $conversation->currentStep;
-
-        if (!$startFrom) return $steps;
-
-        $index = array_search($startFrom, $steps);
-
-        if ($index === false) return $steps;
-
-        return array_slice($steps, $index + 1);
     }
 }

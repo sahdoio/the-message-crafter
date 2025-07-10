@@ -34,6 +34,7 @@ class HandleConversationFinished
             'conversation_id' => $data->conversationId,
             'status' => MessageStatus::SENT->value,
             'sent_at' => new DateTime()->format('Y-m-d H:i:s'),
+            'conversation_step' => self::class,
         ]);
 
         $payload = $this->template->build($conversation);

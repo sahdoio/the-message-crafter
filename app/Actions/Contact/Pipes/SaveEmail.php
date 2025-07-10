@@ -18,10 +18,8 @@ use Domain\Contact\Entities\Message;
 use Domain\Contact\Enums\MessageStatus;
 use Illuminate\Support\Facades\Log;
 
-class SaveEmail
+class SaveEmail extends ConversationPipe
 {
-    public const string STEP_ID = 'save_email';
-
     public function __construct(
         protected AskEmailSecondTimeTemplate $askEmailSecondTimeTemplate,
         protected EmailSavedSuccessfullyTemplate $askEmailSavedSuccessfullyTemplate
@@ -32,9 +30,9 @@ class SaveEmail
      */
     public function handle(MessageFlowInputDTO $data, Closure $next): mixed
     {
-        Repository::for(Conversation::class)->update($data->conversation->id, [
-            'current_step' => self::class,
-        ]);
+        if (($callback = $this->verifyStep($data, $next)) instanceof Closure) {
+            return $callback;
+        }
 
         $email = $data->replyAction ?? '';
 
@@ -49,6 +47,7 @@ class SaveEmail
                 'status' => MessageStatus::SENT->value,
                 'sent_at' => new DateTime()->format('Y-m-d H:i:s'),
                 'payload' => $this->askEmailSecondTimeTemplate->build($data->conversation)->values(),
+                'conversation_step' => self::class,
             ]));
 
             return null;
@@ -63,6 +62,7 @@ class SaveEmail
             'status' => MessageStatus::SENT->value,
             'sent_at' => new DateTime()->format('Y-m-d H:i:s'),
             'payload' => $this->askEmailSavedSuccessfullyTemplate->build($data->conversation)->values(),
+            'conversation_step' => self::class,
         ]));
 
         $data->conversation->finish();
@@ -72,8 +72,10 @@ class SaveEmail
         Log::info('SaveEmail - Email saved', [
             'conversation_id' => $data->conversation->id,
             'email' => $email,
-            'step' => self::STEP_ID,
+            'step' => self::class,
         ]);
+
+        $this->updateStep($data);
 
         return null;
     }

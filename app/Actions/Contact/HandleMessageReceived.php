@@ -47,7 +47,8 @@ class HandleMessageReceived
         if (is_null($conversation->strategyClass)) {
             $strategy = $this->resolver->resolve($event->replyAction);
             $conversation->startStrategy($strategy::class);
-        } // Existing conversation
+        }
+        // Existing conversation
         else {
             $strategy = app($conversation->strategyClass);
         }
