@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Facades;
 
 use App\DTOs\PaginationDTO;
+use App\Repositories\Eloquent\BaseRepository;
 use App\Repositories\IRepository;
 use Illuminate\Support\Facades\Facade;
 
