@@ -1,0 +1,11 @@
+membership_controllers:
+    resource:
+        path: ../src/Membership/Infrastructure/Http/Controller/
+        namespace: Membership\Infrastructure\Http\Controller
+    type: attribute
+
+messaging_controllers:
+    resource:
+        path: ../src/Messaging/Infrastructure/Http/Controller/
+        namespace: Messaging\Infrastructure\Http\Controller
+    type: attribute
