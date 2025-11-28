@@ -19,7 +19,8 @@ final class StartConversationController extends AbstractController
 {
     public function __construct(
         private readonly ValidatorInterface $validator,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly \Messaging\Application\UseCase\StartConversationUseCase $startConversationUseCase
     ) {
     }
 
@@ -58,8 +59,7 @@ final class StartConversationController extends AbstractController
         }
 
         try {
-            // TODO: Implement StartConversationUseCase
-            // $this->startConversationUseCase->execute($data['to']);
+            $this->startConversationUseCase->execute($data['to']);
 
             $this->logger->info('Conversation start requested', [
                 'to' => $data['to'],
